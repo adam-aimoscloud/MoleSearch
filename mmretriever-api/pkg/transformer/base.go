@@ -17,6 +17,7 @@ type TransformerType string
 
 const (
 	TransformerTypeDefault = "default"
+	TransformerTypeDify    = "dify"
 )
 
 var registeredTransformers = make(map[TransformerType]Transformer)
