@@ -42,6 +42,3 @@ class QwenVLM(BaseVLM):
         return DataIO(
             text=rsp.output.choices[0].message.content[0]['text'],
         )
-    
-QwenVLM.register_self()
-QwenVLMParam.register_self()

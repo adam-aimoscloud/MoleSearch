@@ -2,21 +2,21 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 import dashscope
 from http import HTTPStatus
-from .base import BaseTEmbedPlugin, BaseTEmbedPluginParam
+from .base import BaseTEmbed, BaseTEmbedParam
 from ...core import DataIO
 
 
 @dataclass_json
 @dataclass
-class QwenTEmbedPluginParam(BaseTEmbedPluginParam):
+class QwenTEmbedParam(BaseTEmbedParam):
     api_key: str = field(default='')
     model: str = field(default='text-embedding-v4')
 
 
 @dataclass_json
 @dataclass
-class QwenTEmbedPlugin(BaseTEmbedPlugin):
-    def __init__(self, param: QwenTEmbedPluginParam) -> None:
+class QwenTEmbed(BaseTEmbed):
+    def __init__(self, param: QwenTEmbedParam) -> None:
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
@@ -30,6 +30,3 @@ class QwenTEmbedPlugin(BaseTEmbedPlugin):
         return DataIO(
             embeddings=rsp.output.embeddings,
         )
-    
-QwenTEmbedPlugin.register_self()
-QwenTEmbedPluginParam.register_self()

@@ -13,13 +13,13 @@ __plugin_params__ = {}
 class BasePluginParam:
     name: str = field(default='')
     type: str = field(default='')
-    impl: str = field(default='')
+    impl: str = field(default='Abstract')
 
     @classmethod
     def register_self(cls) -> None:
         if cls.__name__ in __plugin_params__:
             raise ValueError(f'{cls.__name__} already exists')
-        __plugin_params__[cls.__name__] = cls
+        __plugin_params__[cls.__name__] = cls 
     
 
 class BasePlugin(object):

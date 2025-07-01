@@ -1,17 +1,19 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
-from ...core import BasePlugin, BasePluginParam
+from ...core import DataIO
 
 
 @dataclass_json
 @dataclass
-class BaseIEmbedPluginParam(BasePluginParam):
+class BaseIEmbedParam:
     pass
 
 
 @dataclass_json
 @dataclass
-class BaseIEmbedPlugin(BasePlugin):
-    def __init__(self, param: BaseIEmbedPluginParam) -> None:
-        super().__init__(param)
+class BaseIEmbed:
+    def __init__(self, param: BaseIEmbedParam) -> None:
         self.param = param
+
+    def forward(self, input: DataIO) -> DataIO:
+        raise NotImplementedError(f'{self.__class__.__name__} does not implement forward method')

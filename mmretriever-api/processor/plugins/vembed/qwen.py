@@ -2,21 +2,21 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 import dashscope
 from http import HTTPStatus
-from .base import BaseVEmbedPlugin, BaseVEmbedPluginParam
+from .base import BaseVEmbed, BaseVEmbedParam
 from ...core import DataIO
 
 
 @dataclass_json
 @dataclass
-class QwenVEmbedPluginParam(BaseVEmbedPluginParam):
+class QwenVEmbedParam(BaseVEmbedParam):
     api_key: str = field(default='')
     model: str = field(default='multimodal-embedding-v1')
 
 
 @dataclass_json
 @dataclass
-class QwenVEmbedPlugin(BaseVEmbedPlugin):
-    def __init__(self, param: QwenVEmbedPluginParam) -> None:
+class QwenVEmbed(BaseVEmbed):
+    def __init__(self, param: QwenVEmbedParam) -> None:
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
@@ -31,5 +31,3 @@ class QwenVEmbedPlugin(BaseVEmbedPlugin):
             embeddings=rsp.output.embeddings,
         )
     
-QwenVEmbedPlugin.register_self()
-QwenVEmbedPluginParam.register_self()

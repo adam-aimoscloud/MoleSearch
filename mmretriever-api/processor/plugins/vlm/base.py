@@ -1,17 +1,19 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
-from ...core import BasePlugin, BasePluginParam
+from ...core import DataIO
 
 
 @dataclass_json
 @dataclass
-class BaseVLMParam(BasePluginParam):
+class BaseVLMParam:
     pass
 
 
 @dataclass_json
 @dataclass
-class BaseVLM(BasePlugin):
+class BaseVLM:
     def __init__(self, param: BaseVLMParam) -> None:
-        super().__init__(param)
         self.param = param
+
+    def forward(self, input: DataIO) -> DataIO:
+        raise NotImplementedError(f'{self.__class__.__name__} does not implement forward method')

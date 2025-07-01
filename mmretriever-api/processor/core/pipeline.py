@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from typing import Dict, Any
 from .plugin import BasePluginParam, BasePlugin, get_registered_plugin_params, get_registered_plugins
-from .data import DataIO
+from .data import MMData
 
 
 __pipelines__ = {}
@@ -21,7 +21,9 @@ class PipelineParam:
         self.name = config['name']
         self.type = config['type']
         self.enable = config.get('enable', False)
-        self.plugins = {name: get_registered_plugin_params()[param['plugin']]().from_dict(param) for name, param in config['plugins'].items()}
+        self.plugins = {}
+        for name, param in config['plugins'].items():
+            self.plugins[name] = get_registered_plugin_params()[name]().from_dict(param)
         return self
     
     def get_plugin_param(self, name: str) -> BasePluginParam:
@@ -32,7 +34,7 @@ class Pipeline(object):
     def __init__(self, param: PipelineParam) -> None:
         self.param = param
 
-    def forward(self, input: DataIO) -> DataIO:
+    def forward(self, input: MMData) -> MMData:
         raise NotImplementedError(f'{self.__class__.__name__} does not implement forward method')
     
     @classmethod
