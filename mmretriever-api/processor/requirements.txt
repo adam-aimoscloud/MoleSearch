@@ -1,0 +1,8 @@
+# Audio extraction and processing dependencies
+ffmpeg-python>=0.2.0
+oss2>=2.15.0
+requests>=2.25.0
+
+# Optional: for enhanced audio processing
+numpy>=1.21.0
+scipy>=1.7.0 
