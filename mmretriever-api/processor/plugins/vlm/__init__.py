@@ -2,6 +2,7 @@ from .qwen import QwenVLM, QwenVLMParam
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from ...core import BasePlugin, BasePluginParam, DataIO
+from typing import Union
 
 class ImplType:
     QWEN = 'Qwen'.lower()
@@ -10,7 +11,7 @@ class ImplType:
 @dataclass_json
 @dataclass
 class VLMPluginParam(BasePluginParam):
-    param: QwenVLMParam = field(default=None)
+    param: Union[QwenVLMParam, None] = field(default=None)
 
 _vlm_impls_ = {
     ImplType.QWEN: QwenVLM,

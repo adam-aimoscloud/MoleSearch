@@ -2,6 +2,7 @@ from .qwen import QwenVEmbed, QwenVEmbedParam
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from ...core import BasePlugin, BasePluginParam, DataIO
+from typing import Union
 
 class ImplType:
     QWEN = 'Qwen'.lower()
@@ -10,7 +11,7 @@ class ImplType:
 @dataclass_json
 @dataclass
 class VEmbedPluginParam(BasePluginParam):
-    param: QwenVEmbedParam = field(default=None)
+    param: Union[QwenVEmbedParam, None] = field(default=None)
 
 _vembed_impls_ = {
     ImplType.QWEN: QwenVEmbed,

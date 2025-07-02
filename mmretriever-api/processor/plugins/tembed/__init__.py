@@ -2,6 +2,7 @@ from .qwen import QwenTEmbed, QwenTEmbedParam
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from ...core import BasePlugin, BasePluginParam, DataIO
+from typing import Union
 
 class ImplType:
     QWEN = 'Qwen'.lower()
@@ -10,7 +11,7 @@ class ImplType:
 @dataclass_json
 @dataclass
 class TEmbedPluginParam(BasePluginParam):
-    param: QwenTEmbedParam = field(default=None)
+    param: Union[QwenTEmbedParam, None] = field(default=None)
 
 _tembed_impls_ = {
     ImplType.QWEN: QwenTEmbed,

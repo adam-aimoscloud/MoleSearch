@@ -2,7 +2,7 @@ from ..core import Pipeline, PipelineParam, DataIO, MMData
 from ..plugins import *
 
 
-class MMPipeline(Pipeline):
+class MMExactor(Pipeline):
     def __init__(self, param: PipelineParam) -> None:
         super().__init__(param)
         self.asr = ASRPlugin(param.get_plugin_param(ASRPluginParam.__class__.__name__))
@@ -40,4 +40,4 @@ class MMPipeline(Pipeline):
             output.video.text = data_io.text
         return output
     
-MMPipeline.register_self()
+MMExactor.register_self()

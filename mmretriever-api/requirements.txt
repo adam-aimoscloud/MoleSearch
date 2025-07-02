@@ -1,3 +1,4 @@
 dataclasses-json
 dataclasses
 dashscope
+elasticsearch>=8.0.0

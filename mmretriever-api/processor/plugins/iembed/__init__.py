@@ -1,3 +1,4 @@
+from typing import Union
 from .qwen import QwenIEmbed, QwenIEmbedParam
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
@@ -10,7 +11,7 @@ class ImplType:
 @dataclass_json
 @dataclass
 class IEmbedPluginParam(BasePluginParam):
-    param: QwenIEmbedParam = field(default=None)
+    param: Union[QwenIEmbedParam, None] = field(default=None)
 
 _iembed_impls_ = {
     ImplType.QWEN: QwenIEmbed,
