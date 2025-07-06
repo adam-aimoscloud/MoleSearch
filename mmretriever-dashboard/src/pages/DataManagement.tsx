@@ -22,6 +22,7 @@ import {
 } from '@ant-design/icons';
 import { ApiService } from '../services/api';
 import { InsertDataRequest } from '../types/api';
+import FileUploadInput from '../components/FileUploadInput';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -110,7 +111,7 @@ const DataManagement: React.FC = () => {
       
       <Alert
         message="数据插入说明"
-        description="支持插入文本、图像、视频数据。至少需要提供一种类型的内容。图像和视频需要提供有效的URL地址。"
+        description="支持插入文本、图像、视频数据。至少需要提供一种类型的内容。图像和视频支持直接输入URL或上传本地文件。"
         type="info"
         showIcon
         style={{ marginBottom: 16 }}
@@ -156,7 +157,11 @@ const DataManagement: React.FC = () => {
                       </span>
                     }
                   >
-                    <Input placeholder="请输入图像URL地址（可选）" />
+                    <FileUploadInput
+                      placeholder="请输入图像URL或上传图像文件"
+                      accept="image/*"
+                      fileType="image"
+                    />
                   </Form.Item>
                 </Col>
                 
@@ -169,7 +174,11 @@ const DataManagement: React.FC = () => {
                       </span>
                     }
                   >
-                    <Input placeholder="请输入视频URL地址（可选）" />
+                    <FileUploadInput
+                      placeholder="请输入视频URL或上传视频文件"
+                      accept="video/*"
+                      fileType="video"
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -251,9 +260,9 @@ const DataManagement: React.FC = () => {
 
       {insertStats && (
         <Card title="插入统计" style={{ marginTop: 16 }}>
-          <Space>
-            <Text>成功插入 <Text strong>{insertStats.count}</Text> 条数据</Text>
-            <Text>处理耗时 <Text strong>{insertStats.time.toFixed(3)}</Text> 秒</Text>
+          <Space direction="vertical">
+            <Text>插入数据条数: {insertStats.count}</Text>
+            <Text>处理时间: {insertStats.time.toFixed(3)} 秒</Text>
           </Space>
         </Card>
       )}

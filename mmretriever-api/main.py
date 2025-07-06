@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import os
 from handlers.search_handler import router as search_router
+from handlers.file_handler import router as file_router
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -49,6 +50,7 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(search_router, prefix="/api/v1", tags=["search"])
+app.include_router(file_router)
 
 @app.get("/")
 async def root():

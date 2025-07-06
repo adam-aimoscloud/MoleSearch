@@ -16,6 +16,7 @@ import {
 import { SearchOutlined, FileTextOutlined, PictureOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { ApiService } from '../services/api';
 import { SearchResponse, SearchResultItem } from '../types/api';
+import FileUploadInput from '../components/FileUploadInput';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -220,7 +221,11 @@ const Search: React.FC = () => {
                 label="图像URL"
                 rules={[{ required: true, message: '请输入图像URL' }]}
               >
-                <Input placeholder="请输入图像URL地址" />
+                <FileUploadInput
+                  placeholder="请输入图像URL或上传图像文件"
+                  accept="image/*"
+                  fileType="image"
+                />
               </Form.Item>
               
               <Form.Item
@@ -261,7 +266,11 @@ const Search: React.FC = () => {
                 label="视频URL"
                 rules={[{ required: true, message: '请输入视频URL' }]}
               >
-                <Input placeholder="请输入视频URL地址" />
+                <FileUploadInput
+                  placeholder="请输入视频URL或上传视频文件"
+                  accept="video/*"
+                  fileType="video"
+                />
               </Form.Item>
               
               <Form.Item
@@ -298,7 +307,7 @@ const Search: React.FC = () => {
           <Card title="多模态搜索" style={{ marginBottom: 16 }}>
             <Alert
               message="多模态搜索说明"
-              description="可以同时使用文本、图像、视频进行搜索，至少需要提供一种类型的输入。"
+              description="可以同时使用文本、图像、视频进行搜索，至少需要提供一种类型的输入。支持直接输入URL或上传本地文件。"
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -319,14 +328,22 @@ const Search: React.FC = () => {
                 name="image_url"
                 label="图像URL（可选）"
               >
-                <Input placeholder="请输入图像URL地址" />
+                <FileUploadInput
+                  placeholder="请输入图像URL或上传图像文件"
+                  accept="image/*"
+                  fileType="image"
+                />
               </Form.Item>
               
               <Form.Item
                 name="video_url"
                 label="视频URL（可选）"
               >
-                <Input placeholder="请输入视频URL地址" />
+                <FileUploadInput
+                  placeholder="请输入视频URL或上传视频文件"
+                  accept="video/*"
+                  fileType="video"
+                />
               </Form.Item>
               
               <Form.Item

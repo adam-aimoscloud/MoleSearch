@@ -21,10 +21,6 @@ server:
 
 # API密钥和凭证配置
 credentials:
-  # 阿里云DashScope API密钥
-  dashscope_api_key: "your_dashscope_api_key_here"
-  
-  # 阿里云OSS配置
   oss:
     access_key_id: "your_oss_access_key_id_here"
     access_key_secret: "your_oss_access_key_secret_here"

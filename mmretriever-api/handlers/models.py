@@ -253,4 +253,62 @@ class ErrorResponse(BaseModel):
                 "message": "输入参数无效",
                 "details": "文本内容不能为空"
             }
+        }
+
+
+class FileUploadResponse(BaseModel):
+    """文件上传响应"""
+    success: bool = Field(..., description="上传是否成功")
+    message: str = Field(..., description="响应消息")
+    file_url: Optional[str] = Field(None, description="文件访问URL")
+    oss_path: Optional[str] = Field(None, description="OSS存储路径")
+    file_size: Optional[int] = Field(None, description="文件大小（字节）")
+    file_extension: Optional[str] = Field(None, description="文件扩展名")
+    upload_time: Optional[str] = Field(None, description="上传时间")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "success": True,
+                "message": "文件上传成功",
+                "file_url": "https://bucket.oss-cn-hangzhou.aliyuncs.com/mmretriever/20250107/1704589200_12345678-1234-5678-9abc-123456789abc.jpg",
+                "oss_path": "mmretriever/20250107/1704589200_12345678-1234-5678-9abc-123456789abc.jpg",
+                "file_size": 1024000,
+                "file_extension": ".jpg",
+                "upload_time": "2025-01-07T10:30:00"
+            }
+        }
+
+
+class FileInfo(BaseModel):
+    """文件信息"""
+    oss_path: str = Field(..., description="OSS存储路径")
+    file_size: int = Field(..., description="文件大小（字节）")
+    content_type: str = Field(..., description="文件MIME类型")
+    last_modified: Optional[str] = Field(None, description="最后修改时间")
+    etag: str = Field(..., description="文件ETag")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "oss_path": "mmretriever/20250107/1704589200_12345678-1234-5678-9abc-123456789abc.jpg",
+                "file_size": 1024000,
+                "content_type": "image/jpeg",
+                "last_modified": "2025-01-07T10:30:00",
+                "etag": "\"abc123def456\""
+            }
+        }
+
+
+class FileDeleteResponse(BaseModel):
+    """文件删除响应"""
+    success: bool = Field(..., description="删除是否成功")
+    message: str = Field(..., description="响应消息")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "success": True,
+                "message": "文件删除成功"
+            }
         } 
