@@ -39,7 +39,9 @@ class ESSearchEngine(BaseSearchEngine):
         self.vector_dimensions = param.get('vector_dimensions', {
             'text_embedding': 1024,
             'image_embedding': 1024,
-            'video_embedding': 1024
+            'video_embedding': 1024,
+            'image_text_embedding': 1024,
+            'video_text_embedding': 1024
         })
         
         # 确保索引存在并配置mapping
@@ -61,6 +63,14 @@ class ESSearchEngine(BaseSearchEngine):
                         "video": {
                             "type": "keyword"
                         },
+                        "image_text": {
+                            "type": "text",
+                            "analyzer": "standard"
+                        },
+                        "video_text": {
+                            "type": "text",
+                            "analyzer": "standard"
+                        },
                         "text_embedding": {
                             "type": "dense_vector",
                             "dims": self.vector_dimensions.get('text_embedding', 1024),
@@ -78,6 +88,18 @@ class ESSearchEngine(BaseSearchEngine):
                             "dims": self.vector_dimensions.get('video_embedding', 1024),
                             "index": True,
                             "similarity": "cosine"
+                        },
+                        "image_text_embedding": {
+                            "type": "dense_vector",
+                            "dims": self.vector_dimensions.get('image_text_embedding', 1024),
+                            "index": True,
+                            "similarity": "cosine"
+                        },
+                        "video_text_embedding": {
+                            "type": "dense_vector",
+                            "dims": self.vector_dimensions.get('video_text_embedding', 1024),
+                            "index": True,
+                            "similarity": "cosine"
                         }
                     }
                 }
@@ -86,27 +108,29 @@ class ESSearchEngine(BaseSearchEngine):
             self.es.indices.create(index=self.index_name, **mapping)
 
     def search(self, input: SearchInput) -> SearchOutput:
-        """执行搜索，支持文本搜索和向量搜索"""
-        queries = []
+        """执行搜索，支持文本检索和向量检索混合召回，统一排序"""
+        should_queries = []
         
-        # 构建文本搜索查询
+        # 构建multi_match文本检索（支持text/image_text/video_text）
         if input.text:
-            text_query = {
-                "match": {
-                    "text": {
-                        "query": input.text,
-                        "boost": 1.0
-                    }
+            should_queries.append({
+                "multi_match": {
+                    "query": input.text,
+                    "fields": [
+                        "text^2",  # 主文本权重更高
+                        "image_text",
+                        "video_text"
+                    ],
+                    "type": "best_fields"
                 }
-            }
-            queries.append(text_query)
+            })
         
-        # 构建向量搜索查询
+        # 构建向量检索（支持多embedding字段）
         for embedding_info in input.embeddings:
             if embedding_info.label and embedding_info.embedding:
                 field_name = self._get_embedding_field(embedding_info.label)
                 if field_name:
-                    vector_query = {
+                    should_queries.append({
                         "script_score": {
                             "query": {"match_all": {}},
                             "script": {
@@ -116,20 +140,17 @@ class ESSearchEngine(BaseSearchEngine):
                                 }
                             }
                         }
-                    }
-                    queries.append(vector_query)
+                    })
         
         # 构建最终查询
-        if len(queries) == 0:
-            # 如果没有查询条件，返回所有文档
+        if not should_queries:
             query = {"match_all": {}}
-        elif len(queries) == 1:
-            query = queries[0]
+        elif len(should_queries) == 1:
+            query = should_queries[0]
         else:
-            # 多个查询条件使用bool should组合
             query = {
                 "bool": {
-                    "should": queries,
+                    "should": should_queries,
                     "minimum_should_match": 1
                 }
             }
@@ -172,7 +193,9 @@ class ESSearchEngine(BaseSearchEngine):
             doc = {
                 "text": data.text,
                 "image": data.image,
-                "video": data.video
+                "video": data.video,
+                "image_text": data.image_text,
+                "video_text": data.video_text
             }
             
             # 添加embedding数据
@@ -208,6 +231,10 @@ class ESSearchEngine(BaseSearchEngine):
             return 'image_embedding'
         elif 'video' in label_lower or 'vid' in label_lower or 'vembed' in label_lower:
             return 'video_embedding'
+        elif 'image_text' in label_lower or 'img_text' in label_lower:
+            return 'image_text_embedding'
+        elif 'video_text' in label_lower or 'vid_text' in label_lower:
+            return 'video_text_embedding'
         else:
             # 默认返回文本embedding字段
             return 'text_embedding'
@@ -220,7 +247,9 @@ class ESSearchEngine(BaseSearchEngine):
                 doc = {
                     "text": data.text,
                     "image": data.image,
-                    "video": data.video
+                    "video": data.video,
+                    "image_text": data.image_text,
+                    "video_text": data.video_text
                 }
                 
                 # 添加embedding数据

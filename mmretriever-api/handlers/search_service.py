@@ -204,58 +204,11 @@ class SearchService:
                     embedding=result.image.image_embedding
                 ))
             
-            search_input = SearchInput(
-                text='',
-                embeddings=embeddings,
-                topk=top_k
-            )
-            
-            # 执行搜索
-            search_result = self.search_engine.search(search_input)
-            
-            # 转换结果格式
-            results = []
-            for item in search_result.items:
-                results.append({
-                    'id': str(uuid.uuid4()),
-                    'text': item.text,
-                    'image': item.image,
-                    'video': item.video,
-                    'score': item.score
-                })
-            
-            return results
-            
-        except Exception as e:
-            error_msg = str(e)
-            logger.error(f"图像搜索失败: {error_msg}")
-            
-            # 转换插件错误为自定义异常
-            if "image format is illegal" in error_msg or "cannot be opened" in error_msg:
-                raise InvalidMediaFormatException("图像", image_url, error_msg)
-            elif "download error" in error_msg or "inaccessible" in error_msg:
-                raise MediaDownloadException("图像", image_url, error_msg)
-            elif "QwenIEmbedPlugin forward failed" in error_msg:
-                raise MediaProcessingException(f"图像处理失败: {error_msg}")
-            else:
-                raise ServiceException(f"图像搜索服务异常: {error_msg}")
-    
-    async def search_video(self, video_url: str, top_k: int = 10) -> List[Dict[str, Any]]:
-        """视频搜索"""
-        if not self.initialized:
-            await self.initialize()
-        
-        try:
-            # 使用MMExtractor处理视频
-            mm_data = MMData(video=VideoItem(video=video_url))
-            result = await self.mm_extractor.forward(mm_data)
-            
-            # 构建搜索输入
-            embeddings = []
-            if result.video and result.video.video_embedding:
+            # 添加图像文本嵌入搜索
+            if result.image and result.image.text_embeddings:
                 embeddings.append(EmbeddingInfo(
-                    label='video_embedding',
-                    embedding=result.video.video_embedding
+                    label='image_text_embedding',
+                    embedding=result.image.text_embeddings[0]
                 ))
             
             search_input = SearchInput(
@@ -281,16 +234,59 @@ class SearchService:
             return results
             
         except Exception as e:
-            error_msg = str(e)
-            logger.error(f"视频搜索失败: {error_msg}")
+            logger.error(f"图像搜索失败: {str(e)}")
+            raise
+    
+    async def search_video(self, video_url: str, top_k: int = 10) -> List[Dict[str, Any]]:
+        """视频搜索"""
+        if not self.initialized:
+            await self.initialize()
+        
+        try:
+            # 使用MMExtractor处理视频
+            mm_data = MMData(video=VideoItem(video=video_url))
+            result = await self.mm_extractor.forward(mm_data)
             
-            # 转换插件错误为自定义异常
-            if "Video URL download error" in error_msg or "inaccessible" in error_msg:
-                raise MediaDownloadException("视频", video_url, error_msg)
-            elif "QwenVEmbedPlugin forward failed" in error_msg:
-                raise MediaProcessingException(f"视频处理失败: {error_msg}")
-            else:
-                raise ServiceException(f"视频搜索服务异常: {error_msg}")
+            # 构建搜索输入
+            embeddings = []
+            if result.video and result.video.video_embedding:
+                embeddings.append(EmbeddingInfo(
+                    label='video_embedding',
+                    embedding=result.video.video_embedding
+                ))
+            
+            # 添加视频文本嵌入搜索
+            if result.video and result.video.text_embeddings:
+                embeddings.append(EmbeddingInfo(
+                    label='video_text_embedding',
+                    embedding=result.video.text_embeddings[0]
+                ))
+            
+            search_input = SearchInput(
+                text='',
+                embeddings=embeddings,
+                topk=top_k
+            )
+            
+            # 执行搜索
+            search_result = self.search_engine.search(search_input)
+            
+            # 转换结果格式
+            results = []
+            for item in search_result.items:
+                results.append({
+                    'id': str(uuid.uuid4()),
+                    'text': item.text,
+                    'image': item.image,
+                    'video': item.video,
+                    'score': item.score
+                })
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"视频搜索失败: {str(e)}")
+            raise
     
     async def search_multimodal(self, text: Optional[str] = None, 
                                image_url: Optional[str] = None,
@@ -404,14 +400,26 @@ class SearchService:
                     label='image_embedding',
                     embedding=result.image.image_embedding
                 ))
-                image_text = result.image.image_text
+                image_text = result.image.text
+                # 添加图像文本嵌入
+                if result.image.text_embeddings:
+                    embeddings.append(EmbeddingInfo(
+                        label='image_text_embedding',
+                        embedding=result.image.text_embeddings[0]
+                    ))
             
             if result.video and result.video.video_embedding:
                 embeddings.append(EmbeddingInfo(
                     label='video_embedding',
                     embedding=result.video.video_embedding
                 ))
-                video_text = result.video.video_text
+                video_text = result.video.text
+                # 添加视频文本嵌入
+                if result.video.text_embeddings:
+                    embeddings.append(EmbeddingInfo(
+                        label='video_text_embedding',
+                        embedding=result.video.text_embeddings[0]
+                    ))
             insert_data = InsertData(
                 text=text,
                 image=image_url,
@@ -476,13 +484,25 @@ class SearchService:
                         label='image_embedding',
                         embedding=result.image.image_embedding
                     ))
-                    image_text = result.image.image_text
+                    image_text = result.image.text
+                    # 添加图像文本嵌入
+                    if result.image.text_embeddings:
+                        embeddings.append(EmbeddingInfo(
+                            label='image_text_embedding',
+                            embedding=result.image.text_embeddings[0]
+                        ))
                 if result.video and result.video.video_embedding:
                     embeddings.append(EmbeddingInfo(
                         label='video_embedding',
                         embedding=result.video.video_embedding
                     ))
-                    video_text = result.video.video_text
+                    video_text = result.video.text
+                    # 添加视频文本嵌入
+                    if result.video.text_embeddings:
+                        embeddings.append(EmbeddingInfo(
+                            label='video_text_embedding',
+                            embedding=result.video.text_embeddings[0]
+                        ))
                 insert_data = InsertData(
                     text=data_request.text,
                     image=data_request.image_url,
