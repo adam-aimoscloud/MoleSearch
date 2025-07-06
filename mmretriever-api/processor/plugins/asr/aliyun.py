@@ -16,6 +16,7 @@ class AliyunASRParam(BaseASRParam):
     oss_bucket_name: str = field(default='')
     model: str = field(default='')
     api_key: str = field(default='paraformer-realtime-v2')
+    audio_prefix: str = field(default='audio_')
 
 
 @dataclass_json
@@ -25,24 +26,30 @@ class AliyunASR(BaseASR):
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
-        audio_url = AudioExtractor(
-            oss_access_key_id=self.param.oss_access_key_id,
-            oss_access_key_secret=self.param.oss_access_key_secret,
-            oss_endpoint=self.param.oss_endpoint,
-            oss_bucket_name=self.param.oss_bucket_name,
-        ).extract_audio(
-            video_url=input.video,
-            audio_prefix=self.param.audio_prefix,
-        )
-        recognition = Recognition(model=self.param.model,
-                          format='wav',
-                          sample_rate=16000,
-                          # “language_hints” only support paraformer-realtime-v2 model
-                          language_hints=['zh', 'en'],
-                          callback=None)
-        result = recognition.call(audio_url)
-        if result.status_code != HTTPStatus.OK:
-            raise Exception(f'AliyunASRPlugin forward failed: {result.text}')
-        return DataIO(
-            text=result.output.text,
-        )
+        try:
+            audio_url = AudioExtractor(
+                oss_access_key_id=self.param.oss_access_key_id,
+                oss_access_key_secret=self.param.oss_access_key_secret,
+                oss_endpoint=self.param.oss_endpoint,
+                oss_bucket_name=self.param.oss_bucket_name,
+            ).extract_audio(
+                video_url=input.video,
+                audio_prefix=self.param.audio_prefix,
+            )
+            recognition = Recognition(model=self.param.model,
+                              format='wav',
+                              sample_rate=16000,
+                              # "language_hints" only support paraformer-realtime-v2 model
+                              language_hints=['zh', 'en'],
+                              callback=None)
+            result = recognition.call(audio_url)
+            if result.status_code != HTTPStatus.OK:
+                print(f'Warning: ASR failed but continuing: {result.text}')
+                return DataIO(text='')  # 返回空文本而不是抛出异常
+            return DataIO(
+                text=result.output.text if hasattr(result.output, 'text') else '',
+            )
+        except Exception as e:
+            # ASR 失败时返回空文本，不中断整个流程
+            print(f'Warning: ASR processing failed, returning empty text: {e}')
+            return DataIO(text='')

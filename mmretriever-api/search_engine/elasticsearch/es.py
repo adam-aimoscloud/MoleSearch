@@ -15,6 +15,7 @@ class ESParam:
     index: str = field(default='mmretriever')
     username: str = field(default='')
     password: str = field(default='')
+    scheme: str = field(default='http')
 
 
 class ESSearchEngine(BaseSearchEngine):
@@ -25,7 +26,7 @@ class ESSearchEngine(BaseSearchEngine):
         
         # 构建ES连接
         es_config = {
-            'hosts': [f"{self.param.host}:{self.param.port}"]
+            'hosts': [f"{self.param.scheme}://{self.param.host}:{self.param.port}"]
         }
         
         if self.param.username and self.param.password:
@@ -33,6 +34,13 @@ class ESSearchEngine(BaseSearchEngine):
         
         self.es = Elasticsearch(**es_config)
         self.index_name = self.param.index
+        
+        # 从参数中获取向量维度配置
+        self.vector_dimensions = param.get('vector_dimensions', {
+            'text_embedding': 1024,
+            'image_embedding': 1024,
+            'video_embedding': 1024
+        })
         
         # 确保索引存在并配置mapping
         self._ensure_index()
@@ -55,19 +63,19 @@ class ESSearchEngine(BaseSearchEngine):
                         },
                         "text_embedding": {
                             "type": "dense_vector",
-                            "dims": 1024,  # 默认维度，可根据实际embedding调整
+                            "dims": self.vector_dimensions.get('text_embedding', 1024),
                             "index": True,
                             "similarity": "cosine"
                         },
                         "image_embedding": {
                             "type": "dense_vector",
-                            "dims": 1024,
+                            "dims": self.vector_dimensions.get('image_embedding', 1024),
                             "index": True,
                             "similarity": "cosine"
                         },
                         "video_embedding": {
                             "type": "dense_vector",
-                            "dims": 1024,
+                            "dims": self.vector_dimensions.get('video_embedding', 1024),
                             "index": True,
                             "similarity": "cosine"
                         }
@@ -75,7 +83,7 @@ class ESSearchEngine(BaseSearchEngine):
                 }
             }
             
-            self.es.indices.create(index=self.index_name, body=mapping)
+            self.es.indices.create(index=self.index_name, **mapping)
 
     def search(self, input: SearchInput) -> SearchOutput:
         """执行搜索，支持文本搜索和向量搜索"""
@@ -136,7 +144,7 @@ class ESSearchEngine(BaseSearchEngine):
             
             response = self.es.search(
                 index=self.index_name,
-                body=search_body
+                **search_body
             )
             
             # 解析结果
@@ -181,7 +189,7 @@ class ESSearchEngine(BaseSearchEngine):
             self.es.index(
                 index=self.index_name,
                 id=doc_id,
-                body=doc
+                document=doc
             )
             
             # 刷新索引以确保数据可搜索
@@ -245,7 +253,7 @@ class ESSearchEngine(BaseSearchEngine):
         try:
             self.es.delete_by_query(
                 index=self.index_name,
-                body={"query": {"match_all": {}}}
+                query={"match_all": {}}
             )
             self.es.indices.refresh(index=self.index_name)
         except Exception as e:

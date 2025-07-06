@@ -22,11 +22,12 @@ class QwenIEmbed(BaseIEmbed):
     async def forward(self, input: DataIO) -> DataIO:
         rsp = dashscope.MultiModalEmbedding.call(
             model=self.param.model,
-            input=input.image,
+            input=[{'image': input.image}],
             api_key=self.param.api_key,
         )
         if rsp.status_code != HTTPStatus.OK:
-            raise Exception(f'QwenIEmbedPlugin forward failed: {rsp.text}')
+            error_msg = getattr(rsp, 'message', str(rsp))
+            raise Exception(f'QwenIEmbedPlugin forward failed: {error_msg}')
         return DataIO(
-            embeddings=rsp.output.embeddings,
+            embeddings=[item['embedding'] for item in rsp.output['embeddings']],
         )

@@ -20,14 +20,22 @@ class QwenVEmbed(BaseVEmbed):
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
-        rsp = dashscope.MultiModalEmbedding.call(
-            model=self.param.model,
-            input=input.video,
-            api_key=self.param.api_key,
-        )
-        if rsp.status_code != HTTPStatus.OK:
-                raise Exception(f'QwenVEmbedPlugin forward failed: {rsp.text}')
-        return DataIO(
-            embeddings=rsp.output.embeddings,
-        )
+        try:
+            rsp = dashscope.MultiModalEmbedding.call(
+                model=self.param.model,
+                input=[{'video': input.video}],
+                api_key=self.param.api_key,
+            )
+            if rsp.status_code != HTTPStatus.OK:
+                error_msg = getattr(rsp, 'message', str(rsp))
+                raise Exception(f'QwenVEmbedPlugin forward failed: {error_msg}')
+            return DataIO(
+                embeddings=[item['embedding'] for item in rsp.output['embeddings']],
+            )
+        except Exception as e:
+            # 改善错误消息，提供更多上下文
+            if "download" in str(e).lower():
+                raise Exception(f'QwenVEmbedPlugin forward failed: Video URL download error - {input.video} may be inaccessible')
+            else:
+                raise Exception(f'QwenVEmbedPlugin forward failed: {str(e)}')
     

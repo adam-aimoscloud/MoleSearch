@@ -16,18 +16,29 @@ class PipelineParam:
     enable: bool = field(default=False)
     plugins: Dict[str, BasePluginParam] = field(default_factory=dict)
 
-    @classmethod
-    def from_dict(self, config: Dict[str, Any]) -> 'PipelineParam':
-        self.name = config['name']
-        self.type = config['type']
-        self.enable = config.get('enable', False)
-        self.plugins = {}
-        for name, param in config['plugins'].items():
-            self.plugins[name] = get_registered_plugin_params()[name]().from_dict(param)
-        return self
+# 在装饰器之后重新定义from_dict方法
+def _pipeline_from_dict(cls, config: Dict[str, Any]) -> 'PipelineParam':
+    instance = cls()
+    instance.name = config['name']
+    instance.type = config['type']
+    instance.enable = config.get('enable', False)
+    instance.plugins = {}
     
-    def get_plugin_param(self, name: str) -> BasePluginParam:
-        return self.plugins[name]
+    for name, param in config['plugins'].items():
+        plugin_param_class = get_registered_plugin_params()[name]
+        plugin_param_instance = plugin_param_class.from_dict(param)
+        instance.plugins[name] = plugin_param_instance
+    return instance
+
+# 覆盖dataclass_json的from_dict方法
+PipelineParam.from_dict = classmethod(_pipeline_from_dict)
+
+    
+def get_plugin_param(self, name: str) -> BasePluginParam:
+    return self.plugins[name]
+
+# 将get_plugin_param方法添加到PipelineParam类
+PipelineParam.get_plugin_param = get_plugin_param
 
 
 class Pipeline(object):

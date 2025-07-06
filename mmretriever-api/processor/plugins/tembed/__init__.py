@@ -13,6 +13,27 @@ class ImplType:
 class TEmbedPluginParam(BasePluginParam):
     param: Union[QwenTEmbedParam, None] = field(default=None)
 
+# 在装饰器之后重新定义from_dict方法
+def _tembed_from_dict(cls, config: dict) -> 'TEmbedPluginParam':
+    instance = cls()
+    instance.name = config.get('name', '')
+    instance.type = config.get('type', '')
+    instance.impl = config.get('impl', '')
+    
+    # 处理嵌套的param字段
+    if 'param' in config:
+        param_config = config['param']
+        impl_type = instance.impl.lower()
+        if impl_type == 'qwen':
+            instance.param = QwenTEmbedParam.from_dict(param_config)
+        else:
+            raise ValueError(f'Unknown TEmbedPlugin implementation: {instance.impl}')
+    
+    return instance
+
+# 覆盖dataclass_json的from_dict方法
+TEmbedPluginParam.from_dict = classmethod(_tembed_from_dict)
+
 _tembed_impls_ = {
     ImplType.QWEN: QwenTEmbed,
 }

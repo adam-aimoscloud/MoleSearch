@@ -8,7 +8,10 @@ import uuid
 from typing import Optional
 import requests
 from urllib.parse import urlparse
-from ...utils import logger
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from utils import logger
 
 class AudioExtractor:
     def __init__(self, oss_access_key_id: str, oss_access_key_secret: str, 

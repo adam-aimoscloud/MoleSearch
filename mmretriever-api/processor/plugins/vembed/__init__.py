@@ -13,6 +13,27 @@ class ImplType:
 class VEmbedPluginParam(BasePluginParam):
     param: Union[QwenVEmbedParam, None] = field(default=None)
 
+# 在装饰器之后重新定义from_dict方法
+def _vembed_from_dict(cls, config: dict) -> 'VEmbedPluginParam':
+    instance = cls()
+    instance.name = config.get('name', '')
+    instance.type = config.get('type', '')
+    instance.impl = config.get('impl', '')
+    
+    # 处理嵌套的param字段
+    if 'param' in config:
+        param_config = config['param']
+        impl_type = instance.impl.lower()
+        if impl_type == 'qwen':
+            instance.param = QwenVEmbedParam.from_dict(param_config)
+        else:
+            raise ValueError(f'Unknown VEmbedPlugin implementation: {instance.impl}')
+    
+    return instance
+
+# 覆盖dataclass_json的from_dict方法
+VEmbedPluginParam.from_dict = classmethod(_vembed_from_dict)
+
 _vembed_impls_ = {
     ImplType.QWEN: QwenVEmbed,
 }

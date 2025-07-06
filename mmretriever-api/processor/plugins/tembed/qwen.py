@@ -26,7 +26,8 @@ class QwenTEmbed(BaseTEmbed):
             api_key=self.param.api_key,
         )
         if rsp.status_code != HTTPStatus.OK:
-            raise Exception(f'QwenTEmbedPlugin forward failed: {rsp.text}')
+            error_msg = getattr(rsp, 'message', str(rsp))
+            raise Exception(f'QwenTEmbedPlugin forward failed: {error_msg}')
         return DataIO(
-            embeddings=rsp.output.embeddings,
+            embeddings=[item['embedding'] for item in rsp.output['embeddings']],
         )

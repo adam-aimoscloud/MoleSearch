@@ -1,3 +1,7 @@
 *.pyc
 __pycache__
 .env.yaml
+mm_extractor_config.yaml
+config.yaml
+node_modules
+package-lock.json

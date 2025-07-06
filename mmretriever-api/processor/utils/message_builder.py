@@ -46,16 +46,17 @@ class MessageBuilder:
 
     @classmethod
     def build_dashscope_vlm_message(cls, image_url: str, prompt: str = None) -> List[Dict[str, Any]]:
-        system_msg = Message(
-            role=Role.SYSTEM,
-            content=DashscopeMessageContent(
-                text=prompt,
-            ),
-        ).to_dict() if prompt else None
-        user_msg = Message(
-            role=Role.USER,
-            content=DashscopeMessageContent(
-                image=image_url,
-            ),
-        ).to_dict()
-        return [system_msg, user_msg] if system_msg else [user_msg]
+        messages = []
+        
+        if prompt:
+            messages.append({
+                'role': Role.SYSTEM,
+                'content': [{'text': prompt}]
+            })
+        
+        messages.append({
+            'role': Role.USER,
+            'content': [{'image': image_url}]
+        })
+        
+        return messages

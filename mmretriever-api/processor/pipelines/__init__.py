@@ -1,1 +1,1 @@
-from .mm_extractor import MMExactor
+from .mm_extractor import MMExtractor

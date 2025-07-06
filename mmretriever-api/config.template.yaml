@@ -1,0 +1,228 @@
+# MMRetriever 服务配置文件
+# 包含服务器配置、MMExtractor配置、SearchEngine配置等
+
+# 服务器配置
+server:
+  # 监听地址
+  host: "0.0.0.0"
+  # 监听端口
+  port: 8000
+  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  log_level: "INFO"
+  # 开发模式 (启用代码热重载)
+  dev_mode: false
+  # 是否启用访问日志
+  access_log: true
+  # 允许的跨域来源
+  cors_origins: ["*"]
+  # API文档路径
+  docs_url: "/docs"
+  redoc_url: "/redoc"
+
+# API密钥和凭证配置
+credentials:
+  # 阿里云DashScope API密钥
+  dashscope_api_key: "your_dashscope_api_key_here"
+  
+  # 阿里云OSS配置
+  oss:
+    access_key_id: "your_oss_access_key_id_here"
+    access_key_secret: "your_oss_access_key_secret_here"
+    endpoint: "oss-cn-hangzhou.aliyuncs.com"
+    bucket_name: "mmretriever-audio"
+
+# MMExtractor 配置
+mmextractor:
+  name: "MMExtractor"
+  type: "extraction"
+  enable: true
+  
+  # 插件配置
+  plugins:
+    # ASR (自动语音识别) 插件配置
+    ASRPluginParam:
+      name: "asr"
+      type: "speech_recognition"
+      impl: "aliyun"
+      param:
+        # 阿里云OSS配置（用于临时存储音频文件）
+        oss_access_key_id: "your_oss_access_key_id_here"
+        oss_access_key_secret: "your_oss_access_key_secret_here"
+        oss_endpoint: "oss-cn-hangzhou.aliyuncs.com"
+        oss_bucket_name: "mmretriever-audio"
+        # ASR模型配置
+        model: "paraformer-realtime-v2"
+        api_key: "your_dashscope_api_key_here"
+        audio_prefix: "audio_"
+    
+    # 文本嵌入插件配置
+    TEmbedPluginParam:
+      name: "text_embed"
+      type: "text_embedding"
+      impl: "qwen"
+      param:
+        api_key: "your_dashscope_api_key_here"
+        model: "text-embedding-v4"
+    
+    # 图像嵌入插件配置
+    IEmbedPluginParam:
+      name: "image_embed"
+      type: "image_embedding"
+      impl: "qwen"
+      param:
+        api_key: "your_dashscope_api_key_here"
+        model: "multimodal-embedding-v1"
+    
+    # 视频嵌入插件配置
+    VEmbedPluginParam:
+      name: "video_embed"
+      type: "video_embedding"
+      impl: "qwen"
+      param:
+        api_key: "your_dashscope_api_key_here"
+        model: "multimodal-embedding-v1"
+    
+    # 视觉语言模型插件配置
+    VLMPluginParam:
+      name: "vlm"
+      type: "vision_language_model"
+      impl: "qwen"
+      param:
+        api_key: "your_dashscope_api_key_here"
+        model: "qwen-vl-max-latest"
+        prompt_path: "tests/qwen_vlm_prompt.txt"
+
+# 搜索引擎配置
+search_engine:
+  type: "elasticsearch"
+  config:
+    # Elasticsearch 连接配置
+    host: "localhost"
+    port: 9200
+    # 协议: http 或 https
+    scheme: "http"
+    # 索引名称
+    index: "mmretriever"
+    # 认证配置（可选）
+    username: ""
+    password: ""
+    # 连接超时时间（秒）
+    timeout: 30
+    # 最大重试次数
+    max_retries: 3
+    # 向量维度配置
+    vector_dimensions:
+      text_embedding: 1536
+      image_embedding: 1536
+      video_embedding: 1536
+    # 批量插入配置
+    batch_size: 100
+    # 索引刷新策略
+    refresh_policy: "wait_for"
+
+# 配置验证
+validation:
+  # 验证必需的配置项
+  required_fields:
+    - "credentials.dashscope_api_key"
+    - "credentials.oss.access_key_id"
+    - "credentials.oss.access_key_secret"
+  
+  # 验证配置项格式
+  format_validation:
+    dashscope_api_key_min_length: 20
+    oss_endpoint_pattern: "^oss-.*\\.aliyuncs\\.com$"
+
+# 性能配置
+performance:
+  # 并发处理配置
+  max_concurrent_requests: 10
+  # 请求超时时间（秒）
+  request_timeout: 300
+  # 内存配置
+  max_memory_mb: 2048
+  # 缓存配置
+  cache:
+    enable: true
+    ttl: 3600  # 缓存存活时间（秒）
+    max_size: 1000  # 最大缓存条目数
+
+# 安全配置
+security:
+  # API密钥配置（可选）
+  api_key_required: false
+  api_key_header: "X-API-Key"
+  # 速率限制配置
+  rate_limit:
+    enable: false
+    requests_per_minute: 100
+    burst_size: 20
+
+# 监控配置
+monitoring:
+  # 健康检查配置
+  health_check:
+    endpoint: "/health"
+    interval: 30  # 检查间隔（秒）
+  
+  # 指标收集配置
+  metrics:
+    enable: true
+    endpoint: "/metrics"
+    collect_system_metrics: true
+    collect_app_metrics: true
+
+# 日志配置
+logging:
+  # 日志级别
+  level: "INFO"
+  # 日志格式: json 或 text
+  format: "json"
+  # 日志输出位置
+  output: "stdout"
+  # 日志文件配置（当output包含file时）
+  file:
+    path: "logs/mmretriever.log"
+    max_size: "100MB"
+    backup_count: 5
+    rotation: "daily"
+  # 请求日志配置
+  access_log:
+    enable: true
+    format: "%(h)s %(l)s %(u)s %(t)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\""
+
+# 数据处理配置
+data_processing:
+  # 文件上传配置
+  upload:
+    max_file_size: "100MB"
+    allowed_extensions: [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".txt", ".pdf", ".doc", ".docx"]
+    temp_dir: "/tmp/mmretriever"
+  
+  # 图像处理配置
+  image:
+    max_width: 2048
+    max_height: 2048
+    quality: 85
+    format: "JPEG"
+  
+  # 视频处理配置
+  video:
+    max_duration: 600  # 最大视频时长（秒）
+    max_size: "500MB"
+    extract_frames: true
+    frame_interval: 1  # 帧提取间隔（秒）
+
+# 存储配置
+storage:
+  # 临时文件存储
+  temp:
+    path: "/tmp/mmretriever"
+    cleanup_interval: 3600  # 清理间隔（秒）
+    max_age: 86400  # 文件最大存活时间（秒）
+  
+  # 持久化存储（可选）
+  persistent:
+    enable: false
+    path: "/data/mmretriever"
+    backup_interval: 86400  # 备份间隔（秒） 

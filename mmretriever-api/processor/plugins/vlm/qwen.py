@@ -38,7 +38,8 @@ class QwenVLM(BaseVLM):
             stream=False,
         )
         if rsp.status_code != HTTPStatus.OK:
-            raise Exception(f'QwenVLM forward failed: {rsp.text}')
+            error_msg = getattr(rsp, 'message', str(rsp))
+            raise Exception(f'QwenVLM forward failed: {error_msg}')
         return DataIO(
-            text=rsp.output.choices[0].message.content[0]['text'],
+            text=rsp.output['choices'][0]['message']['content'][0]['text'],
         )

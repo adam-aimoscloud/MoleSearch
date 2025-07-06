@@ -54,6 +54,8 @@ class InsertData:
     image: str = field(default='')
     video: str = field(default='')
     embeddings: List[EmbeddingInfo] = field(default_factory=list)
+    image_text: str = field(default='')
+    video_text: str = field(default='')
 
 
 class BaseSearchEngine(object):
