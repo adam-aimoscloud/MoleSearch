@@ -38,6 +38,8 @@ class SearchOutputItem:
     text: str = field(default='')
     image: str = field(default='')
     video: str = field(default='')
+    image_text: str = field(default='')
+    video_text: str = field(default='')
     score: float = field(default=0.0)
 
 
@@ -58,6 +60,13 @@ class InsertData:
     video_text: str = field(default='')
 
 
+@dataclass_json
+@dataclass
+class ListDataOutput:
+    total: int = field(default=0)
+    items: List[SearchOutputItem] = field(default_factory=list)
+
+
 class BaseSearchEngine(object):
     type = SearchEngineType.ABSTRACT
     def __init__(self, param: Dict[str, Any]) -> None:
@@ -71,6 +80,9 @@ class BaseSearchEngine(object):
     
     def batch_insert(self, data_list: List[InsertData]) -> None:
         raise NotImplementedError(f'{self.__class__.__name__} does not implement batch_insert method')
+    
+    def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
+        raise NotImplementedError(f'{self.__class__.__name__} does not implement list_data method')
     
     @classmethod
     def register_self(cls) -> None:

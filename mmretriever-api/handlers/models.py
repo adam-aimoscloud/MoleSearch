@@ -116,6 +116,8 @@ class SearchResultItem(BaseModel):
     text: str = Field("", description="文本内容")
     image_url: str = Field("", description="图像URL")
     video_url: str = Field("", description="视频URL")
+    image_text: str = Field("", description="图像文本描述")
+    video_text: str = Field("", description="视频文本描述")
     score: float = Field(..., description="相似度分数")
     
     class Config:
@@ -125,6 +127,8 @@ class SearchResultItem(BaseModel):
                 "text": "这是一段关于人工智能的描述",
                 "image_url": "https://example.com/ai_image.jpg",
                 "video_url": "https://example.com/ai_video.mp4",
+                "image_text": "图像中展示了人工智能技术的应用场景",
+                "video_text": "视频内容描述了AI技术的发展历程",
                 "score": 0.95
             }
         }
@@ -311,4 +315,28 @@ class FileDeleteResponse(BaseModel):
                 "success": True,
                 "message": "文件删除成功"
             }
-        } 
+        }
+
+
+class DataListRequest(BaseModel):
+    """全量数据分页请求"""
+    page: int = Field(1, description="页码", ge=1)
+    page_size: int = Field(20, description="每页条数", ge=1, le=100)
+
+
+class DataListItem(BaseModel):
+    id: str = Field(..., description="文档ID")
+    text: Optional[str] = Field('', description="文本内容")
+    image_url: Optional[str] = Field('', description="图片URL")
+    video_url: Optional[str] = Field('', description="视频URL")
+    image_text: Optional[str] = Field('', description="图像文本描述")
+    video_text: Optional[str] = Field('', description="视频文本描述")
+
+
+class DataListResponse(BaseModel):
+    success: bool = Field(True, description="请求是否成功")
+    message: str = Field("", description="响应消息")
+    total: int = Field(0, description="总数据量")
+    items: List[DataListItem] = Field([], description="数据列表")
+    page: int = Field(1, description="当前页码")
+    page_size: int = Field(20, description="每页条数") 

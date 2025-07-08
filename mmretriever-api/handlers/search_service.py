@@ -177,6 +177,8 @@ class SearchService:
                     'text': item.text,
                     'image': item.image,
                     'video': item.video,
+                    'image_text': item.image_text,
+                    'video_text': item.video_text,
                     'score': item.score
                 })
             
@@ -228,6 +230,8 @@ class SearchService:
                     'text': item.text,
                     'image': item.image,
                     'video': item.video,
+                    'image_text': item.image_text,
+                    'video_text': item.video_text,
                     'score': item.score
                 })
             
@@ -279,6 +283,8 @@ class SearchService:
                     'text': item.text,
                     'image': item.image,
                     'video': item.video,
+                    'image_text': item.image_text,
+                    'video_text': item.video_text,
                     'score': item.score
                 })
             
@@ -347,6 +353,8 @@ class SearchService:
                     'text': item.text,
                     'image': item.image,
                     'video': item.video,
+                    'image_text': item.image_text,
+                    'video_text': item.video_text,
                     'score': item.score
                 })
             
@@ -548,4 +556,34 @@ class SearchService:
             
         except Exception as e:
             logger.error(f"获取状态失败: {str(e)}")
-            raise 
+            raise
+    
+    async def list_data(self, page: int = 1, page_size: int = 20) -> Dict[str, Any]:
+        """分页获取全部数据"""
+        if not self.initialized:
+            await self.initialize()
+        try:
+            # 通过搜索引擎接口获取数据
+            result = self.search_engine.list_data(page=page, page_size=page_size)
+            
+            # 转换结果格式
+            items = []
+            for item in result.items:
+                items.append({
+                    'id': str(uuid.uuid4()),  # 生成临时ID
+                    'text': item.text,
+                    'image_url': item.image,
+                    'video_url': item.video,
+                    'image_text': item.image_text,
+                    'video_text': item.video_text
+                })
+            
+            logger.info(f"全量分页查询成功，总数: {result.total}, 当前页: {page}, 页大小: {page_size}, 返回项数: {len(items)}")
+            
+            return {
+                'total': result.total,
+                'items': items
+            }
+        except Exception as e:
+            logger.error(f"全量分页查询失败: {str(e)}")
+            raise ServiceException(f"全量分页查询失败: {str(e)}") 

@@ -10,7 +10,8 @@ import traceback
 from .models import (
     TextSearchRequest, ImageSearchRequest, VideoSearchRequest, 
     MultimodalSearchRequest, SearchResponse, SearchResultItem,
-    InsertDataRequest, BatchInsertRequest, InsertResponse, ErrorResponse
+    InsertDataRequest, BatchInsertRequest, InsertResponse, ErrorResponse,
+    DataListRequest, DataListResponse, DataListItem
 )
 from .search_service import SearchService
 from .exceptions import (
@@ -81,6 +82,8 @@ async def search_text(
                 text=item.get('text', ''),
                 image_url=item.get('image', ''),
                 video_url=item.get('video', ''),
+                image_text=item.get('image_text', ''),
+                video_text=item.get('video_text', ''),
                 score=item.get('score', 0.0)
             ))
         
@@ -131,6 +134,8 @@ async def search_image(
                 text=item.get('text', ''),
                 image_url=item.get('image', ''),
                 video_url=item.get('video', ''),
+                image_text=item.get('image_text', ''),
+                video_text=item.get('video_text', ''),
                 score=item.get('score', 0.0)
             ))
         
@@ -179,6 +184,8 @@ async def search_video(
                 text=item.get('text', ''),
                 image_url=item.get('image', ''),
                 video_url=item.get('video', ''),
+                image_text=item.get('image_text', ''),
+                video_text=item.get('video_text', ''),
                 score=item.get('score', 0.0)
             ))
         
@@ -236,6 +243,8 @@ async def search_multimodal(
                 text=item.get('text', ''),
                 image_url=item.get('image', ''),
                 video_url=item.get('video', ''),
+                image_text=item.get('image_text', ''),
+                video_text=item.get('video_text', ''),
                 score=item.get('score', 0.0)
             ))
         
@@ -337,6 +346,20 @@ async def batch_insert_data(
         )
 
 
+@router.get("/health")
+async def health_check():
+    """
+    健康检查接口
+    
+    简单的健康检查，用于负载均衡器和监控系统
+    """
+    return {
+        "status": "healthy",
+        "service": "MMRetriever Search Service",
+        "version": "1.0.0"
+    }
+
+
 @router.get("/status")
 async def get_status(service: SearchService = Depends(get_search_service)):
     """
@@ -354,4 +377,39 @@ async def get_status(service: SearchService = Depends(get_search_service)):
         raise HTTPException(
             status_code=500,
             detail=f"获取服务状态失败: {str(e)}"
-        ) 
+        )
+
+
+@router.post("/data/list", response_model=DataListResponse)
+async def list_data(
+    request: DataListRequest,
+    service: SearchService = Depends(get_search_service)
+):
+    """
+    全量数据分页查询接口
+    - **page**: 页码，从1开始
+    - **page_size**: 每页条数
+    """
+    try:
+        result = await service.list_data(page=request.page, page_size=request.page_size)
+        items = []
+        for item in result['items']:
+            items.append(DataListItem(
+                id=item.get('id', ''),
+                text=item.get('text', ''),
+                image_url=item.get('image_url', ''),
+                video_url=item.get('video_url', ''),
+                image_text=item.get('image_text', ''),
+                video_text=item.get('video_text', '')
+            ))
+        return DataListResponse(
+            success=True,
+            message="查询成功",
+            total=result['total'],
+            items=items,
+            page=request.page,
+            page_size=request.page_size
+        )
+    except Exception as e:
+        logger.error(f"全量分页查询失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"全量分页查询失败: {str(e)}") 

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from typing import Dict, Any, List
 from elasticsearch import Elasticsearch
-from ..base import BaseSearchEngine, SearchEngineParam, SearchEngineType, SearchInput, SearchOutput, InsertData, SearchOutputItem, EmbeddingInfo
+from ..base import BaseSearchEngine, SearchEngineParam, SearchEngineType, SearchInput, SearchOutput, InsertData, SearchOutputItem, EmbeddingInfo, ListDataOutput
 import uuid
 import json
 
@@ -176,6 +176,8 @@ class ESSearchEngine(BaseSearchEngine):
                     text=source.get('text', ''),
                     image=source.get('image', ''),
                     video=source.get('video', ''),
+                    image_text=source.get('image_text', ''),
+                    video_text=source.get('video_text', ''),
                     score=hit['_score']
                 )
                 items.append(item)
@@ -288,6 +290,50 @@ class ESSearchEngine(BaseSearchEngine):
         except Exception as e:
             print(f"ES删除数据错误: {e}")
             raise
+
+    def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
+        """分页查询全量数据"""
+        try:
+            # 计算分页参数
+            from_index = (page - 1) * page_size
+            
+            # 构建查询
+            search_body = {
+                "query": {"match_all": {}},
+                "from": from_index,
+                "size": page_size,
+                "_source": True,
+                "sort": [{"_id": {"order": "desc"}}]  # 按ID倒序，最新数据在前
+            }
+            
+            # 执行搜索
+            response = self.es.search(
+                index=self.index_name,
+                **search_body
+            )
+            
+            # 获取总数
+            total = response['hits']['total']['value'] if isinstance(response['hits']['total'], dict) else response['hits']['total']
+            
+            # 解析结果
+            items = []
+            for hit in response['hits']['hits']:
+                source = hit['_source']
+                item = SearchOutputItem(
+                    text=source.get('text', ''),
+                    image=source.get('image', ''),
+                    video=source.get('video', ''),
+                    image_text=source.get('image_text', ''),
+                    video_text=source.get('video_text', ''),
+                    score=hit['_score']
+                )
+                items.append(item)
+            
+            return ListDataOutput(total=total, items=items)
+            
+        except Exception as e:
+            print(f"ES查询数据错误: {e}")
+            return ListDataOutput(total=0, items=[])
 
 
 ESSearchEngine.register_self()

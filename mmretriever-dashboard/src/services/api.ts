@@ -9,7 +9,9 @@ import {
   VideoSearchRequest,
   MultimodalSearchRequest,
   InsertDataRequest,
-  BatchInsertRequest
+  BatchInsertRequest,
+  DataListRequest,
+  DataListResponse
 } from '../types/api';
 
 // 创建axios实例
@@ -91,6 +93,12 @@ export class ApiService {
   // 批量插入数据
   static async batchInsertData(request: BatchInsertRequest): Promise<InsertResponse> {
     const response = await api.post('/data/batch_insert', request);
+    return response.data;
+  }
+
+  // 全量数据查询
+  static async listData(request: DataListRequest): Promise<DataListResponse> {
+    const response = await api.post('/data/list', request);
     return response.data;
   }
 }

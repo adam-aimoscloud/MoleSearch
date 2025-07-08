@@ -11,7 +11,35 @@ export interface SearchResultItem {
   text: string;
   image_url: string;
   video_url: string;
+  image_text: string;
+  video_text: string;
   score: number;
+}
+
+// 全量数据项
+export interface DataListItem {
+  id: string;
+  text: string;
+  image_url: string;
+  video_url: string;
+  image_text: string;
+  video_text: string;
+}
+
+// 全量数据查询请求
+export interface DataListRequest {
+  page: number;
+  page_size: number;
+}
+
+// 全量数据查询响应
+export interface DataListResponse {
+  success: boolean;
+  message: string;
+  total: number;
+  items: DataListItem[];
+  page: number;
+  page_size: number;
 }
 
 // 搜索响应

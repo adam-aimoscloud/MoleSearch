@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   Tabs, 
@@ -11,11 +11,12 @@ import {
   Tag, 
   message,
   Spin,
-  Alert
+  Alert,
+  Pagination
 } from 'antd';
-import { SearchOutlined, FileTextOutlined, PictureOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { SearchOutlined, FileTextOutlined, PictureOutlined, VideoCameraOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { ApiService } from '../services/api';
-import { SearchResponse, SearchResultItem } from '../types/api';
+import { SearchResponse, SearchResultItem, DataListResponse, DataListItem } from '../types/api';
 import FileUploadInput from '../components/FileUploadInput';
 
 const { Title, Text } = Typography;
@@ -25,6 +26,15 @@ const Search: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [searchStats, setSearchStats] = useState<{ total: number; queryTime: number } | null>(null);
+  
+  // 全量数据状态
+  const [dataList, setDataList] = useState<DataListItem[]>([]);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [dataPagination, setDataPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
 
   const handleTextSearch = async (values: { query: string; top_k: number }) => {
     try {
@@ -121,6 +131,38 @@ const Search: React.FC = () => {
     }
   };
 
+  // 全量数据查询
+  const loadDataList = async (page: number = 1, pageSize: number = 10) => {
+    try {
+      setDataLoading(true);
+      const response = await ApiService.listData({
+        page,
+        page_size: pageSize
+      });
+      
+      if (response.success) {
+        setDataList(response.items);
+        setDataPagination({
+          current: page,
+          pageSize,
+          total: response.total
+        });
+        message.success(`加载了 ${response.items.length} 条数据，共 ${response.total} 条`);
+      } else {
+        message.error(response.message);
+      }
+    } catch (error: any) {
+      message.error(`数据加载失败: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // 页面加载时自动加载第一页数据
+  useEffect(() => {
+    loadDataList();
+  }, []);
+
   const renderResultItem = (item: SearchResultItem, index: number) => (
     <List.Item>
       <Card size="small" style={{ width: '100%' }}>
@@ -140,15 +182,85 @@ const Search: React.FC = () => {
           
           {item.image_url && (
             <div>
-              <Text strong>图像URL:</Text>
-              <Text type="secondary">{item.image_url}</Text>
+              <Text strong>图像:</Text>
+              <div>
+                <img src={item.image_url} alt="图片" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
+              </div>
             </div>
           )}
           
           {item.video_url && (
             <div>
-              <Text strong>视频URL:</Text>
-              <Text type="secondary">{item.video_url}</Text>
+              <Text strong>视频:</Text>
+              <div>
+                <video src={item.video_url} controls style={{ maxWidth: 240, maxHeight: 160, borderRadius: 4, border: '1px solid #eee' }} />
+              </div>
+            </div>
+          )}
+          
+          {item.image_text && (
+            <div>
+              <Text strong>图像文本:</Text>
+              <Text type="secondary">{item.image_text}</Text>
+            </div>
+          )}
+          
+          {item.video_text && (
+            <div>
+              <Text strong>视频文本:</Text>
+              <Text type="secondary">{item.video_text}</Text>
+            </div>
+          )}
+        </Space>
+      </Card>
+    </List.Item>
+  );
+
+  const renderDataItem = (item: DataListItem, index: number) => (
+    <List.Item>
+      <Card size="small" style={{ width: '100%' }}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Space>
+            <Tag color="blue">#{index + 1}</Tag>
+            <Text strong>ID: {item.id}</Text>
+          </Space>
+          
+          {item.text && (
+            <div>
+              <Text strong>文本内容:</Text>
+              <Text>{item.text}</Text>
+            </div>
+          )}
+          
+          {item.image_url && (
+            <div>
+              <Text strong>图像:</Text>
+              <div>
+                <img src={item.image_url} alt="图片" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
+              </div>
+            </div>
+          )}
+          
+          {item.video_url && (
+            <div>
+              <Text strong>视频:</Text>
+              <div>
+                <video src={item.video_url} controls style={{ maxWidth: 240, maxHeight: 160, borderRadius: 4, border: '1px solid #eee' }} />
+              </div>
+            </div>
+          )}
+          
+          {item.image_text && (
+            <div>
+              <Text strong>图像文本:</Text>
+              <Text type="secondary">{item.image_text}</Text>
+            </div>
+          )}
+          
+          {item.video_text && (
+            <div>
+              <Text strong>视频文本:</Text>
+              <Text type="secondary">{item.video_text}</Text>
             </div>
           )}
         </Space>
@@ -367,6 +479,38 @@ const Search: React.FC = () => {
             </Form>
           </Card>
         </TabPane>
+
+        <TabPane 
+          tab={
+            <span>
+              <DatabaseOutlined />
+              全量数据
+            </span>
+          } 
+          key="data"
+        >
+          <Card title="全量数据查看" style={{ marginBottom: 16 }}>
+            <Alert
+              message="全量数据查看说明"
+              description="查看系统中的所有数据，支持分页浏览。数据按插入时间倒序排列。"
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+            
+            <Space style={{ marginBottom: 16 }}>
+              <Button 
+                type="primary" 
+                onClick={() => loadDataList(dataPagination.current, dataPagination.pageSize)}
+                loading={dataLoading}
+                icon={<DatabaseOutlined />}
+              >
+                刷新数据
+              </Button>
+              <Text>共 {dataPagination.total} 条数据</Text>
+            </Space>
+          </Card>
+        </TabPane>
       </Tabs>
 
       {searchStats && (
@@ -385,6 +529,32 @@ const Search: React.FC = () => {
             renderItem={renderResultItem}
             loading={loading}
           />
+        </Card>
+      )}
+
+      {dataList.length > 0 && (
+        <Card title="全量数据">
+          <List
+            dataSource={dataList}
+            renderItem={renderDataItem}
+            loading={dataLoading}
+          />
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <Pagination
+              current={dataPagination.current}
+              pageSize={dataPagination.pageSize}
+              total={dataPagination.total}
+              showSizeChanger
+              showQuickJumper
+              showTotal={(total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`}
+              onChange={(page, pageSize) => {
+                loadDataList(page, pageSize);
+              }}
+              onShowSizeChange={(current, size) => {
+                loadDataList(1, size);
+              }}
+            />
+          </div>
         </Card>
       )}
     </div>
