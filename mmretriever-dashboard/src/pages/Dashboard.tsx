@@ -8,10 +8,12 @@ import {
 } from '@ant-design/icons';
 import { ApiService } from '../services/api';
 import { StatusResponse } from '../types/api';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +48,11 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <Title level={2}>系统仪表板</Title>
+      <Title level={2}>{t('dashboard')}</Title>
       
       {error && (
         <Alert
-          message="连接错误"
+          message={t('error')}
           description={error}
           type="error"
           showIcon
@@ -62,8 +64,8 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="服务状态"
-              value={serviceStatus === 'online' ? '在线' : '离线'}
+              title={t('service_status')}
+              value={serviceStatus === 'online' ? t('online') : t('offline')}
               prefix={
                 serviceStatus === 'online' ? 
                 <CheckCircleOutlined style={{ color: '#52c41a' }} /> : 
@@ -77,8 +79,8 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="MMExtractor"
-              value={status?.status.mm_extractor ? '正常' : '异常'}
+              title={t('mm_extractor')}
+              value={status?.status.mm_extractor ? t('success') : t('error')}
               prefix={<DatabaseOutlined />}
               loading={loading}
             />
@@ -88,8 +90,8 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="搜索引擎"
-              value={status?.status.search_engine ? '正常' : '异常'}
+              title={t('search_engine')}
+              value={status?.status.search_engine ? t('success') : t('error')}
               prefix={<SearchOutlined />}
               loading={loading}
             />
@@ -99,8 +101,8 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="ES连接"
-              value={status?.status.search_engine_connected ? '正常' : '异常'}
+              title={t('es_connection')}
+              value={status?.status.search_engine_connected ? t('success') : t('error')}
               prefix={<DatabaseOutlined />}
               loading={loading}
             />
@@ -110,19 +112,19 @@ const Dashboard: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col span={24}>
-          <Card title="系统信息">
+          <Card title={t('system_info')}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Text>
-                <strong>初始化状态:</strong> {status?.status.initialized ? '已完成' : '未完成'}
+                <strong>{t('init_status')}:</strong> {status?.status.initialized ? t('success') : t('error')}
               </Text>
               <Text>
-                <strong>MMExtractor状态:</strong> {status?.status.mm_extractor ? '正常' : '异常'}
+                <strong>{t('mm_extractor')}:</strong> {status?.status.mm_extractor ? t('success') : t('error')}
               </Text>
               <Text>
-                <strong>搜索引擎状态:</strong> {status?.status.search_engine ? '正常' : '异常'}
+                <strong>{t('search_engine')}:</strong> {status?.status.search_engine ? t('success') : t('error')}
               </Text>
               <Text>
-                <strong>Elasticsearch连接:</strong> {status?.status.search_engine_connected ? '正常' : '异常'}
+                <strong>{t('es_connection')}:</strong> {status?.status.search_engine_connected ? t('success') : t('error')}
               </Text>
             </Space>
           </Card>
@@ -131,13 +133,13 @@ const Dashboard: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col span={24}>
-          <Card title="快速操作">
+          <Card title={t('quick_actions')}>
             <Space wrap>
-              <Text>点击左侧菜单进行以下操作：</Text>
+              <Text>{t('operation')}:</Text>
               <ul>
-                <li><Text strong>搜索管理</Text> - 测试文本、图像、视频搜索功能</li>
-                <li><Text strong>数据管理</Text> - 插入和管理多模态数据</li>
-                <li><Text strong>系统状态</Text> - 查看详细的系统状态信息</li>
+                <li><Text strong>{t('search')}</Text> - {t('text_search')}, {t('image_search')}, {t('video_search')}</li>
+                <li><Text strong>{t('data')}</Text> - {t('insert_data')}, {t('batch_insert')}</li>
+                <li><Text strong>{t('status')}</Text> - {t('system_info')}</li>
               </ul>
             </Space>
           </Card>

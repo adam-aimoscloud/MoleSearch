@@ -18,11 +18,13 @@ import { SearchOutlined, FileTextOutlined, PictureOutlined, VideoCameraOutlined,
 import { ApiService } from '../services/api';
 import { SearchResponse, SearchResultItem, DataListResponse, DataListItem } from '../types/api';
 import FileUploadInput from '../components/FileUploadInput';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 const Search: React.FC = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [searchStats, setSearchStats] = useState<{ total: number; queryTime: number } | null>(null);
@@ -47,12 +49,12 @@ const Search: React.FC = () => {
       if (response.success) {
         setResults(response.results);
         setSearchStats({ total: response.total, queryTime: response.query_time });
-        message.success(`找到 ${response.total} 个结果，耗时 ${response.query_time.toFixed(3)} 秒`);
+        message.success(`${t('found')} ${response.total} ${t('results')}, ${t('query_time')}: ${response.query_time.toFixed(3)} ${t('seconds')}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`搜索失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('search_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -69,12 +71,12 @@ const Search: React.FC = () => {
       if (response.success) {
         setResults(response.results);
         setSearchStats({ total: response.total, queryTime: response.query_time });
-        message.success(`找到 ${response.total} 个结果，耗时 ${response.query_time.toFixed(3)} 秒`);
+        message.success(`${t('found')} ${response.total} ${t('results')}, ${t('query_time')}: ${response.query_time.toFixed(3)} ${t('seconds')}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`搜索失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('search_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -91,12 +93,12 @@ const Search: React.FC = () => {
       if (response.success) {
         setResults(response.results);
         setSearchStats({ total: response.total, queryTime: response.query_time });
-        message.success(`找到 ${response.total} 个结果，耗时 ${response.query_time.toFixed(3)} 秒`);
+        message.success(`${t('found')} ${response.total} ${t('results')}, ${t('query_time')}: ${response.query_time.toFixed(3)} ${t('seconds')}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`搜索失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('search_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -120,12 +122,12 @@ const Search: React.FC = () => {
       if (response.success) {
         setResults(response.results);
         setSearchStats({ total: response.total, queryTime: response.query_time });
-        message.success(`找到 ${response.total} 个结果，耗时 ${response.query_time.toFixed(3)} 秒`);
+        message.success(`${t('found')} ${response.total} ${t('results')}, ${t('query_time')}: ${response.query_time.toFixed(3)} ${t('seconds')}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`搜索失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('search_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -147,12 +149,12 @@ const Search: React.FC = () => {
           pageSize,
           total: response.total
         });
-        message.success(`加载了 ${response.items.length} 条数据，共 ${response.total} 条`);
+        message.success(`${t('loaded')} ${response.items.length} ${t('data_items')}, ${t('total')}: ${response.total}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`数据加载失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('data_load_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setDataLoading(false);
     }
@@ -270,34 +272,34 @@ const Search: React.FC = () => {
 
   return (
     <div>
-      <Title level={2}>搜索管理</Title>
+      <Title level={2}>{t('search_management')}</Title>
       
       <Tabs defaultActiveKey="text">
         <TabPane 
           tab={
             <span>
               <FileTextOutlined />
-              文本搜索
+              {t('text_search')}
             </span>
           } 
           key="text"
         >
-          <Card title="文本搜索" style={{ marginBottom: 16 }}>
+          <Card title={t('text_search')} style={{ marginBottom: 16 }}>
             <Form onFinish={handleTextSearch} layout="vertical">
               <Form.Item
                 name="query"
-                label="搜索查询"
-                rules={[{ required: true, message: '请输入搜索查询' }]}
+                label={t('search_query')}
+                rules={[{ required: true, message: t('search_query') }]}
               >
                 <Input.TextArea 
-                  placeholder="请输入要搜索的文本内容"
+                  placeholder={t('text_content')}
                   rows={3}
                 />
               </Form.Item>
               
               <Form.Item
                 name="top_k"
-                label="返回结果数量"
+                label={t('result_count')}
                 initialValue={10}
               >
                 <Input type="number" min={1} max={100} />
@@ -310,7 +312,7 @@ const Search: React.FC = () => {
                   loading={loading}
                   icon={<SearchOutlined />}
                 >
-                  开始搜索
+                  {t('start_search')}
                 </Button>
               </Form.Item>
             </Form>
@@ -321,20 +323,20 @@ const Search: React.FC = () => {
           tab={
             <span>
               <PictureOutlined />
-              图像搜索
+              {t('image_search')}
             </span>
           } 
           key="image"
         >
-          <Card title="图像搜索" style={{ marginBottom: 16 }}>
+          <Card title={t('image_search')} style={{ marginBottom: 16 }}>
             <Form onFinish={handleImageSearch} layout="vertical">
               <Form.Item
                 name="image_url"
-                label="图像URL"
-                rules={[{ required: true, message: '请输入图像URL' }]}
+                label={t('image') + 'URL'}
+                rules={[{ required: true, message: t('image') + 'URL' }]}
               >
                 <FileUploadInput
-                  placeholder="请输入图像URL或上传图像文件"
+                  placeholder={t('image') + 'URL'}
                   accept="image/*"
                   fileType="image"
                 />
@@ -342,7 +344,7 @@ const Search: React.FC = () => {
               
               <Form.Item
                 name="top_k"
-                label="返回结果数量"
+                label={t('result_count')}
                 initialValue={10}
               >
                 <Input type="number" min={1} max={100} />
@@ -355,7 +357,7 @@ const Search: React.FC = () => {
                   loading={loading}
                   icon={<SearchOutlined />}
                 >
-                  开始搜索
+                  {t('start_search')}
                 </Button>
               </Form.Item>
             </Form>
@@ -366,20 +368,20 @@ const Search: React.FC = () => {
           tab={
             <span>
               <VideoCameraOutlined />
-              视频搜索
+              {t('video_search')}
             </span>
           } 
           key="video"
         >
-          <Card title="视频搜索" style={{ marginBottom: 16 }}>
+          <Card title={t('video_search')} style={{ marginBottom: 16 }}>
             <Form onFinish={handleVideoSearch} layout="vertical">
               <Form.Item
                 name="video_url"
-                label="视频URL"
-                rules={[{ required: true, message: '请输入视频URL' }]}
+                label={t('video') + 'URL'}
+                rules={[{ required: true, message: t('video') + 'URL' }]}
               >
                 <FileUploadInput
-                  placeholder="请输入视频URL或上传视频文件"
+                  placeholder={t('video') + 'URL'}
                   accept="video/*"
                   fileType="video"
                 />
@@ -387,7 +389,7 @@ const Search: React.FC = () => {
               
               <Form.Item
                 name="top_k"
-                label="返回结果数量"
+                label={t('result_count')}
                 initialValue={10}
               >
                 <Input type="number" min={1} max={100} />
@@ -400,7 +402,7 @@ const Search: React.FC = () => {
                   loading={loading}
                   icon={<SearchOutlined />}
                 >
-                  开始搜索
+                  {t('start_search')}
                 </Button>
               </Form.Item>
             </Form>
@@ -411,15 +413,15 @@ const Search: React.FC = () => {
           tab={
             <span>
               <SearchOutlined />
-              多模态搜索
+              {t('multimodal_search')}
             </span>
           } 
           key="multimodal"
         >
-          <Card title="多模态搜索" style={{ marginBottom: 16 }}>
+          <Card title={t('multimodal_search')} style={{ marginBottom: 16 }}>
             <Alert
-              message="多模态搜索说明"
-              description="可以同时使用文本、图像、视频进行搜索，至少需要提供一种类型的输入。支持直接输入URL或上传本地文件。"
+              message={t('multimodal_search') + t('info')}
+              description={t('multimodal_search') + t('info')}
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -428,20 +430,20 @@ const Search: React.FC = () => {
             <Form onFinish={handleMultimodalSearch} layout="vertical">
               <Form.Item
                 name="text"
-                label="文本查询（可选）"
+                label={t('text_content') + '（' + t('optional') + '）'}
               >
                 <Input.TextArea 
-                  placeholder="请输入文本查询"
+                  placeholder={t('text_content')}
                   rows={2}
                 />
               </Form.Item>
               
               <Form.Item
                 name="image_url"
-                label="图像URL（可选）"
+                label={t('image') + 'URL（' + t('optional') + '）'}
               >
                 <FileUploadInput
-                  placeholder="请输入图像URL或上传图像文件"
+                  placeholder={t('image') + 'URL'}
                   accept="image/*"
                   fileType="image"
                 />
@@ -449,10 +451,10 @@ const Search: React.FC = () => {
               
               <Form.Item
                 name="video_url"
-                label="视频URL（可选）"
+                label={t('video') + 'URL（' + t('optional') + '）'}
               >
                 <FileUploadInput
-                  placeholder="请输入视频URL或上传视频文件"
+                  placeholder={t('video') + 'URL'}
                   accept="video/*"
                   fileType="video"
                 />
@@ -460,7 +462,7 @@ const Search: React.FC = () => {
               
               <Form.Item
                 name="top_k"
-                label="返回结果数量"
+                label={t('result_count')}
                 initialValue={10}
               >
                 <Input type="number" min={1} max={100} />
@@ -473,7 +475,7 @@ const Search: React.FC = () => {
                   loading={loading}
                   icon={<SearchOutlined />}
                 >
-                  开始搜索
+                  {t('start_search')}
                 </Button>
               </Form.Item>
             </Form>
@@ -484,15 +486,15 @@ const Search: React.FC = () => {
           tab={
             <span>
               <DatabaseOutlined />
-              全量数据
+              {t('all_data')}
             </span>
           } 
           key="data"
         >
-          <Card title="全量数据查看" style={{ marginBottom: 16 }}>
+          <Card title={t('all_data')} style={{ marginBottom: 16 }}>
             <Alert
-              message="全量数据查看说明"
-              description="查看系统中的所有数据，支持分页浏览。数据按插入时间倒序排列。"
+              message={t('all_data') + t('info')}
+              description={t('all_data') + t('info')}
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -505,25 +507,25 @@ const Search: React.FC = () => {
                 loading={dataLoading}
                 icon={<DatabaseOutlined />}
               >
-                刷新数据
+                {t('refresh')}
               </Button>
-              <Text>共 {dataPagination.total} 条数据</Text>
+              <Text>{t('total', { count: dataPagination.total })}</Text>
             </Space>
           </Card>
         </TabPane>
       </Tabs>
 
       {searchStats && (
-        <Card title="搜索结果统计" style={{ marginBottom: 16 }}>
+        <Card title={t('search_stats')} style={{ marginBottom: 16 }}>
           <Space>
-            <Text>找到 <Text strong>{searchStats.total}</Text> 个结果</Text>
-            <Text>查询耗时 <Text strong>{searchStats.queryTime.toFixed(3)}</Text> 秒</Text>
+            <Text>{t('found')} <Text strong>{searchStats.total}</Text> {t('results')}</Text>
+            <Text>{t('query_time')}: <Text strong>{searchStats.queryTime.toFixed(3)}</Text> {t('seconds')}</Text>
           </Space>
         </Card>
       )}
 
       {results.length > 0 && (
-        <Card title="搜索结果">
+        <Card title={t('search_results')}>
           <List
             dataSource={results}
             renderItem={renderResultItem}
@@ -533,7 +535,7 @@ const Search: React.FC = () => {
       )}
 
       {dataList.length > 0 && (
-        <Card title="全量数据">
+        <Card title={t('all_data')}>
           <List
             dataSource={dataList}
             renderItem={renderDataItem}
@@ -546,7 +548,7 @@ const Search: React.FC = () => {
               total={dataPagination.total}
               showSizeChanger
               showQuickJumper
-              showTotal={(total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`}
+              showTotal={(total, range) => `${t('page_range', { start: range[0], end: range[1], total: total })}`}
               onChange={(page, pageSize) => {
                 loadDataList(page, pageSize);
               }}

@@ -23,12 +23,14 @@ import {
 import { ApiService } from '../services/api';
 import { InsertDataRequest } from '../types/api';
 import FileUploadInput from '../components/FileUploadInput';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 const DataManagement: React.FC = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [insertStats, setInsertStats] = useState<{ count: number; time: number } | null>(null);
 
@@ -46,12 +48,12 @@ const DataManagement: React.FC = () => {
           count: response.inserted_count || 1, 
           time: response.processing_time || 0 
         });
-        message.success(`数据插入成功！处理时间: ${response.processing_time?.toFixed(3)} 秒`);
+        message.success(`${t('data')} ${t('insert_success')}: ${response.processing_time?.toFixed(3)} ${t('second')}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`插入失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('insert_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -74,12 +76,12 @@ const DataManagement: React.FC = () => {
             video_url: data.video_url || ''
           });
         } catch (e) {
-          message.warning(`跳过无效的JSON行: ${line}`);
+          message.warning(`${t('skip_invalid_json_line')}: ${line}`);
         }
       }
       
       if (batchData.length === 0) {
-        message.error('没有有效的数据需要插入');
+        message.error(`${t('no_valid_data_to_insert')}`);
         return;
       }
       
@@ -90,12 +92,12 @@ const DataManagement: React.FC = () => {
           count: response.inserted_count || batchData.length, 
           time: response.processing_time || 0 
         });
-        message.success(`批量插入成功！插入 ${response.inserted_count} 条数据，处理时间: ${response.processing_time?.toFixed(3)} 秒`);
+        message.success(`${t('batch_insert_success')}: ${response.inserted_count} ${t('data')}, ${t('processing_time')}: ${response.processing_time?.toFixed(3)} ${t('second')}`);
       } else {
         message.error(response.message);
       }
     } catch (error: any) {
-      message.error(`批量插入失败: ${error.response?.data?.detail || error.message}`);
+      message.error(`${t('batch_insert_failed')}: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -107,11 +109,11 @@ const DataManagement: React.FC = () => {
 
   return (
     <div>
-      <Title level={2}>数据管理</Title>
+      <Title level={2}>{t('data_management')}</Title>
       
       <Alert
-        message="数据插入说明"
-        description="支持插入文本、图像、视频数据。至少需要提供一种类型的内容。图像和视频支持直接输入URL或上传本地文件。"
+        message={t('insert_data') + t('info')}
+        description={t('insert_data') + t('info')}
         type="info"
         showIcon
         style={{ marginBottom: 16 }}
@@ -122,12 +124,12 @@ const DataManagement: React.FC = () => {
           tab={
             <span>
               <PlusOutlined />
-              单条插入
+              {t('single_insert')}
             </span>
           } 
           key="single"
         >
-          <Card title="单条数据插入">
+          <Card title={t('single_insert')}>
             <Form onFinish={handleSingleInsert} layout="vertical">
               <Row gutter={16}>
                 <Col span={24}>
@@ -135,12 +137,12 @@ const DataManagement: React.FC = () => {
                     name="text"
                     label={
                       <span>
-                        <FileTextOutlined /> 文本内容
+                        <FileTextOutlined /> {t('text_content')}
                       </span>
                     }
                   >
                     <TextArea 
-                      placeholder="请输入文本内容（可选）"
+                      placeholder={t('text_content') + t('optional')}
                       rows={4}
                     />
                   </Form.Item>
@@ -153,12 +155,12 @@ const DataManagement: React.FC = () => {
                     name="image_url"
                     label={
                       <span>
-                        <PictureOutlined /> 图像URL
+                        <PictureOutlined /> {t('image')}
                       </span>
                     }
                   >
                     <FileUploadInput
-                      placeholder="请输入图像URL或上传图像文件"
+                      placeholder={t('image') + t('url')}
                       accept="image/*"
                       fileType="image"
                     />
@@ -170,12 +172,12 @@ const DataManagement: React.FC = () => {
                     name="video_url"
                     label={
                       <span>
-                        <VideoCameraOutlined /> 视频URL
+                        <VideoCameraOutlined /> {t('video')}
                       </span>
                     }
                   >
                     <FileUploadInput
-                      placeholder="请输入视频URL或上传视频文件"
+                      placeholder={t('video') + t('url')}
                       accept="video/*"
                       fileType="video"
                     />
@@ -190,7 +192,7 @@ const DataManagement: React.FC = () => {
                   loading={loading}
                   icon={<PlusOutlined />}
                 >
-                  插入数据
+                  {t('insert_data')}
                 </Button>
               </Form.Item>
             </Form>
@@ -201,15 +203,15 @@ const DataManagement: React.FC = () => {
           tab={
             <span>
               <UploadOutlined />
-              批量插入
+              {t('batch_insert')}
             </span>
           } 
           key="batch"
         >
-          <Card title="批量数据插入">
+          <Card title={t('batch_insert')}>
             <Alert
-              message="批量插入格式"
-              description="每行一个JSON对象，包含text、image_url、video_url字段。至少需要提供一种类型的内容。"
+              message={t('batch_insert') + t('info')}
+              description={t('batch_insert') + t('info')}
               type="warning"
               showIcon
               style={{ marginBottom: 16 }}
@@ -218,12 +220,12 @@ const DataManagement: React.FC = () => {
             <Form onFinish={handleBatchInsert} layout="vertical">
               <Form.Item
                 name="batch_data"
-                label="批量数据（JSON格式）"
-                rules={[{ required: true, message: '请输入批量数据' }]}
+                label={t('batch_insert') + t('json_format')}
+                rules={[{ required: true, message: t('batch_insert') + t('json_format') }]}
                 initialValue={sampleBatchData}
               >
                 <TextArea 
-                  placeholder="请输入批量数据，每行一个JSON对象"
+                  placeholder={t('batch_insert') + t('json_format')}
                   rows={10}
                 />
               </Form.Item>
@@ -236,7 +238,7 @@ const DataManagement: React.FC = () => {
                     loading={loading}
                     icon={<UploadOutlined />}
                   >
-                    批量插入
+                    {t('batch_insert')}
                   </Button>
                   <Button 
                     onClick={() => {
@@ -249,7 +251,7 @@ const DataManagement: React.FC = () => {
                       }
                     }}
                   >
-                    加载示例数据
+                    {t('load_sample')}
                   </Button>
                 </Space>
               </Form.Item>
@@ -259,19 +261,19 @@ const DataManagement: React.FC = () => {
       </Tabs>
 
       {insertStats && (
-        <Card title="插入统计" style={{ marginTop: 16 }}>
+        <Card title={t('insert_stats')} style={{ marginTop: 16 }}>
           <Space direction="vertical">
-            <Text>插入数据条数: {insertStats.count}</Text>
-            <Text>处理时间: {insertStats.time.toFixed(3)} 秒</Text>
+            <Text>{t('inserted_data_count')}: {insertStats.count}</Text>
+            <Text>{t('processing_time')}: {insertStats.time.toFixed(3)} {t('second')}</Text>
           </Space>
         </Card>
       )}
 
       <Divider />
 
-      <Card title="数据格式说明">
+      <Card title={t('data_format_description')}>
         <Space direction="vertical" style={{ width: '100%' }}>
-          <Text strong>单条数据格式：</Text>
+          <Text strong>{t('single_data_format')}:</Text>
           <Text code>
             {`{
   "text": "文本内容",
@@ -280,7 +282,7 @@ const DataManagement: React.FC = () => {
 }`}
           </Text>
           
-          <Text strong>批量数据格式：</Text>
+          <Text strong>{t('batch_data_format')}:</Text>
           <Text code>
             {`{"text": "第一条数据", "image_url": "", "video_url": ""}
 {"text": "第二条数据", "image_url": "", "video_url": ""}
@@ -288,7 +290,7 @@ const DataManagement: React.FC = () => {
           </Text>
           
           <Text type="secondary">
-            注意：至少需要提供text、image_url、video_url中的一种内容。
+            {t('note')}: {t('at_least_one_type_of_content_is_required')}.
           </Text>
         </Space>
       </Card>

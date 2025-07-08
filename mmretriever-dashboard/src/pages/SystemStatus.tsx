@@ -22,10 +22,12 @@ import {
 } from '@ant-design/icons';
 import { ApiService } from '../services/api';
 import { StatusResponse, HealthResponse } from '../types/api';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
 const SystemStatus: React.FC = () => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,19 +80,13 @@ const SystemStatus: React.FC = () => {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Title level={2}>系统状态</Title>
-        <Button 
-          icon={<ReloadOutlined />} 
-          onClick={loadStatus}
-          loading={loading}
-        >
-          刷新状态
-        </Button>
+        <Title level={2}>{t('status')}</Title>
+        <Button icon={<ReloadOutlined />} onClick={loadStatus} loading={loading}>{t('refresh')}</Button>
       </Space>
 
       {error && (
         <Alert
-          message="连接错误"
+          message={t('error')}
           description={error}
           type="error"
           showIcon
@@ -100,21 +96,21 @@ const SystemStatus: React.FC = () => {
 
       <Row gutter={[16, 16]}>
         <Col span={24}>
-          <Card title="整体状态">
+          <Card title={t('overallStatus')}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Space>
                 <Tag 
                   color={overallStatus === 'healthy' ? 'green' : overallStatus === 'warning' ? 'orange' : 'red'}
                   icon={overallStatus === 'healthy' ? <CheckCircleOutlined /> : <ExclamationCircleOutlined />}
                 >
-                  {overallStatus === 'healthy' ? '系统正常' : overallStatus === 'warning' ? '部分异常' : '系统异常'}
+                  {overallStatus === 'healthy' ? t('systemHealthy') : overallStatus === 'warning' ? t('systemWarning') : t('systemError')}
                 </Tag>
-                <Text>最后更新: {new Date().toLocaleString()}</Text>
+                <Text>{t('lastUpdated')}: {new Date().toLocaleString()}</Text>
               </Space>
               
               {health && (
                 <Text>
-                  <strong>健康检查:</strong> {health.status}
+                  <strong>{t('healthCheck')}:</strong> {health.status}
                 </Text>
               )}
             </Space>
@@ -126,8 +122,8 @@ const SystemStatus: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="初始化状态"
-              value={status?.status.initialized ? '已完成' : '未完成'}
+              title={t('initializationStatus')}
+              value={status?.status.initialized ? t('completed') : t('notCompleted')}
               prefix={getStatusIcon(status?.status.initialized || false)}
               valueStyle={{ color: getStatusColor(status?.status.initialized || false) }}
               loading={loading}
@@ -138,8 +134,8 @@ const SystemStatus: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="MMExtractor"
-              value={status?.status.mm_extractor ? '正常' : '异常'}
+              title={t('mmExtractor')}
+              value={status?.status.mm_extractor ? t('normal') : t('abnormal')}
               prefix={<DatabaseOutlined />}
               valueStyle={{ color: getStatusColor(status?.status.mm_extractor || false) }}
               loading={loading}
@@ -150,8 +146,8 @@ const SystemStatus: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="搜索引擎"
-              value={status?.status.search_engine ? '正常' : '异常'}
+              title={t('searchEngine')}
+              value={status?.status.search_engine ? t('normal') : t('abnormal')}
               prefix={<SearchOutlined />}
               valueStyle={{ color: getStatusColor(status?.status.search_engine || false) }}
               loading={loading}
@@ -162,8 +158,8 @@ const SystemStatus: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="ES连接"
-              value={status?.status.search_engine_connected ? '正常' : '异常'}
+              title={t('esConnection')}
+              value={status?.status.search_engine_connected ? t('normal') : t('abnormal')}
               prefix={<DatabaseOutlined />}
               valueStyle={{ color: getStatusColor(status?.status.search_engine_connected || false) }}
               loading={loading}
@@ -174,41 +170,41 @@ const SystemStatus: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col span={24}>
-          <Card title="详细状态信息">
+          <Card title={t('detailedStatus')}>
             <Descriptions bordered column={2}>
-              <Descriptions.Item label="服务状态">
+              <Descriptions.Item label={t('serviceStatus')}>
                 <Tag color={status?.success ? 'green' : 'red'}>
-                  {status?.success ? '正常' : '异常'}
+                  {status?.success ? t('normal') : t('abnormal')}
                 </Tag>
               </Descriptions.Item>
               
-              <Descriptions.Item label="初始化状态">
+              <Descriptions.Item label={t('initializationStatus')}>
                 <Tag color={getStatusColor(status?.status.initialized || false)}>
-                  {status?.status.initialized ? '已完成' : '未完成'}
+                  {status?.status.initialized ? t('completed') : t('notCompleted')}
                 </Tag>
               </Descriptions.Item>
               
-              <Descriptions.Item label="MMExtractor状态">
+              <Descriptions.Item label={t('mmExtractorStatus')}>
                 <Tag color={getStatusColor(status?.status.mm_extractor || false)}>
-                  {status?.status.mm_extractor ? '正常' : '异常'}
+                  {status?.status.mm_extractor ? t('normal') : t('abnormal')}
                 </Tag>
               </Descriptions.Item>
               
-              <Descriptions.Item label="搜索引擎状态">
+              <Descriptions.Item label={t('searchEngineStatus')}>
                 <Tag color={getStatusColor(status?.status.search_engine || false)}>
-                  {status?.status.search_engine ? '正常' : '异常'}
+                  {status?.status.search_engine ? t('normal') : t('abnormal')}
                 </Tag>
               </Descriptions.Item>
               
-              <Descriptions.Item label="ES连接状态">
+              <Descriptions.Item label={t('esConnectionStatus')}>
                 <Tag color={getStatusColor(status?.status.search_engine_connected || false)}>
-                  {status?.status.search_engine_connected ? '正常' : '异常'}
+                  {status?.status.search_engine_connected ? t('normal') : t('abnormal')}
                 </Tag>
               </Descriptions.Item>
               
-              <Descriptions.Item label="健康检查">
+              <Descriptions.Item label={t('healthCheck')}>
                 <Tag color={health?.status === 'healthy' ? 'green' : 'red'}>
-                  {health?.status || '未知'}
+                  {health?.status || t('unknown')}
                 </Tag>
               </Descriptions.Item>
             </Descriptions>
@@ -218,31 +214,31 @@ const SystemStatus: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col span={24}>
-          <Card title="系统组件">
+          <Card title={t('systemComponents')}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <div>
-                <Text strong>FastAPI服务器</Text>
-                <Tag color="green" style={{ marginLeft: 8 }}>运行中</Tag>
+                <Text strong>{t('fastApiServer')}</Text>
+                <Tag color="green" style={{ marginLeft: 8 }}>{t('running')}</Tag>
               </div>
               
               <div>
-                <Text strong>Elasticsearch</Text>
+                <Text strong>{t('elasticsearch')}</Text>
                 <Tag color={getStatusColor(status?.status.search_engine_connected || false)} style={{ marginLeft: 8 }}>
-                  {status?.status.search_engine_connected ? '已连接' : '未连接'}
+                  {status?.status.search_engine_connected ? t('connected') : t('disconnected')}
                 </Tag>
               </div>
               
               <div>
-                <Text strong>MMExtractor插件</Text>
+                <Text strong>{t('mmExtractorPlugin')}</Text>
                 <Tag color={getStatusColor(status?.status.mm_extractor || false)} style={{ marginLeft: 8 }}>
-                  {status?.status.mm_extractor ? '已加载' : '未加载'}
+                  {status?.status.mm_extractor ? t('loaded') : t('unloaded')}
                 </Tag>
               </div>
               
               <div>
-                <Text strong>搜索服务</Text>
+                <Text strong>{t('searchService')}</Text>
                 <Tag color={getStatusColor(status?.status.search_engine || false)} style={{ marginLeft: 8 }}>
-                  {status?.status.search_engine ? '可用' : '不可用'}
+                  {status?.status.search_engine ? t('available') : t('unavailable')}
                 </Tag>
               </div>
             </Space>
@@ -252,24 +248,24 @@ const SystemStatus: React.FC = () => {
 
       <Divider />
 
-      <Card title="故障排除">
+      <Card title={t('troubleshooting')}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Alert
-            message="常见问题"
-            description="如果系统状态显示异常，请检查以下项目："
+            message={t('commonIssues')}
+            description={t('checkItems')}
             type="info"
             showIcon
           />
           
           <ul>
-            <li><Text strong>Elasticsearch连接失败:</Text> 检查ES服务是否启动，端口9200是否可访问</li>
-            <li><Text strong>MMExtractor初始化失败:</Text> 检查配置文件是否正确，API密钥是否有效</li>
-            <li><Text strong>搜索服务异常:</Text> 检查ES索引是否存在，数据是否已插入</li>
-            <li><Text strong>API响应缓慢:</Text> 检查网络连接，服务器资源使用情况</li>
+            <li><Text strong>{t('esConnectionFailed')}:</Text> {t('checkEsService')}</li>
+            <li><Text strong>{t('mmExtractorFailed')}:</Text> {t('checkConfigFile')}</li>
+            <li><Text strong>{t('searchServiceFailed')}:</Text> {t('checkEsIndex')}</li>
+            <li><Text strong>{t('apiSlow')}:</Text> {t('checkNetwork')}</li>
           </ul>
           
           <Text type="secondary">
-            如需更多帮助，请查看服务器日志或联系系统管理员。
+            {t('moreHelp')}
           </Text>
         </Space>
       </Card>
