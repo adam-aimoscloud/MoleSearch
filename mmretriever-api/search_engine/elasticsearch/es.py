@@ -24,7 +24,7 @@ class ESSearchEngine(BaseSearchEngine):
     def __init__(self, param: Dict[str, Any]) -> None:
         self.param = ESParam().from_dict(param)
         
-        # 构建ES连接
+        # Build ES connection
         es_config = {
             'hosts': [f"{self.param.scheme}://{self.param.host}:{self.param.port}"]
         }
@@ -35,7 +35,7 @@ class ESSearchEngine(BaseSearchEngine):
         self.es = Elasticsearch(**es_config)
         self.index_name = self.param.index
         
-        # 从参数中获取向量维度配置
+        # Get vector dimension configuration from parameters
         self.vector_dimensions = param.get('vector_dimensions', {
             'text_embedding': 1024,
             'image_embedding': 1024,
@@ -44,11 +44,11 @@ class ESSearchEngine(BaseSearchEngine):
             'video_text_embedding': 1024
         })
         
-        # 确保索引存在并配置mapping
+        # Ensure index exists and configure mapping
         self._ensure_index()
 
     def _ensure_index(self):
-        """确保索引存在并配置正确的mapping"""
+        """Ensure index exists and configure correct mapping"""
         if not self.es.indices.exists(index=self.index_name):
             mapping = {
                 "mappings": {
@@ -108,16 +108,16 @@ class ESSearchEngine(BaseSearchEngine):
             self.es.indices.create(index=self.index_name, **mapping)
 
     def search(self, input: SearchInput) -> SearchOutput:
-        """执行搜索，支持文本检索和向量检索混合召回，统一排序"""
+        """Execute search, support text retrieval and vector retrieval mixed retrieval, unified sorting"""
         should_queries = []
         
-        # 构建multi_match文本检索（支持text/image_text/video_text）
+        # Build multi_match text retrieval (support text/image_text/video_text)
         if input.text:
             should_queries.append({
                 "multi_match": {
                     "query": input.text,
                     "fields": [
-                        "text^2",  # 主文本权重更高
+                        "text^2",  # Main text weight higher
                         "image_text",
                         "video_text"
                     ],
@@ -125,7 +125,7 @@ class ESSearchEngine(BaseSearchEngine):
                 }
             })
         
-        # 构建向量检索（支持多embedding字段）
+        # Build vector retrieval (support multiple embedding fields)
         for embedding_info in input.embeddings:
             if embedding_info.label and embedding_info.embedding:
                 field_name = self._get_embedding_field(embedding_info.label)
@@ -142,7 +142,7 @@ class ESSearchEngine(BaseSearchEngine):
                         }
                     })
         
-        # 构建最终查询
+        # Build final query
         if not should_queries:
             query = {"match_all": {}}
         elif len(should_queries) == 1:
@@ -155,7 +155,7 @@ class ESSearchEngine(BaseSearchEngine):
                 }
             }
         
-        # 执行搜索
+        # Execute search
         try:
             search_body = {
                 "query": query,
@@ -168,7 +168,7 @@ class ESSearchEngine(BaseSearchEngine):
                 **search_body
             )
             
-            # 解析结果
+            # Parse result
             items = []
             for hit in response['hits']['hits']:
                 source = hit['_source']
@@ -185,13 +185,13 @@ class ESSearchEngine(BaseSearchEngine):
             return SearchOutput(items=items)
             
         except Exception as e:
-            print(f"ES搜索错误: {e}")
+            print(f"ES search error: {e}")
             return SearchOutput(items=[])
 
     def insert(self, data: InsertData) -> None:
-        """插入数据到ES"""
+        """Insert data into ES"""
         try:
-            # 构建文档
+            # Build document
             doc = {
                 "text": data.text,
                 "image": data.image,
@@ -200,32 +200,32 @@ class ESSearchEngine(BaseSearchEngine):
                 "video_text": data.video_text
             }
             
-            # 添加embedding数据
+            # Add embedding data
             for embedding_info in data.embeddings:
                 if embedding_info.label and embedding_info.embedding:
                     field_name = self._get_embedding_field(embedding_info.label)
                     if field_name:
                         doc[field_name] = embedding_info.embedding
             
-            # 生成文档ID
+            # Generate document ID
             doc_id = str(uuid.uuid4())
             
-            # 插入文档
+            # Insert document
             self.es.index(
                 index=self.index_name,
                 id=doc_id,
                 document=doc
             )
             
-            # 刷新索引以确保数据可搜索
+            # Refresh index to ensure data is searchable
             self.es.indices.refresh(index=self.index_name)
             
         except Exception as e:
-            print(f"ES插入错误: {e}")
+            print(f"ES insert error: {e}")
             raise
 
     def _get_embedding_field(self, label: str) -> str:
-        """根据embedding标签获取对应的字段名"""
+        """Get corresponding field name based on embedding label"""
         label_lower = label.lower()
         if 'text' in label_lower or 'tembed' in label_lower:
             return 'text_embedding'
@@ -238,11 +238,11 @@ class ESSearchEngine(BaseSearchEngine):
         elif 'video_text' in label_lower or 'vid_text' in label_lower:
             return 'video_text_embedding'
         else:
-            # 默认返回文本embedding字段
+            # Default return text embedding field
             return 'text_embedding'
 
     def batch_insert(self, data_list: List[InsertData]) -> None:
-        """批量插入数据"""
+        """Batch insert data"""
         try:
             actions = []
             for data in data_list:
@@ -254,7 +254,7 @@ class ESSearchEngine(BaseSearchEngine):
                     "video_text": data.video_text
                 }
                 
-                # 添加embedding数据
+                # Add embedding data
                 for embedding_info in data.embeddings:
                     if embedding_info.label and embedding_info.embedding:
                         field_name = self._get_embedding_field(embedding_info.label)
@@ -268,19 +268,19 @@ class ESSearchEngine(BaseSearchEngine):
                 }
                 actions.append(action)
             
-            # 批量插入
+            # Batch insert
             from elasticsearch.helpers import bulk
             bulk(self.es, actions)
             
-            # 刷新索引
+            # Refresh index
             self.es.indices.refresh(index=self.index_name)
             
         except Exception as e:
-            print(f"ES批量插入错误: {e}")
+            print(f"ES batch insert error: {e}")
             raise
 
     def delete_all(self) -> None:
-        """删除索引中的所有数据"""
+        """Delete all data in the index"""
         try:
             self.es.delete_by_query(
                 index=self.index_name,
@@ -288,34 +288,34 @@ class ESSearchEngine(BaseSearchEngine):
             )
             self.es.indices.refresh(index=self.index_name)
         except Exception as e:
-            print(f"ES删除数据错误: {e}")
+            print(f"ES delete data error: {e}")
             raise
 
     def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
-        """分页查询全量数据"""
+        """Query all data with paging"""
         try:
-            # 计算分页参数
+            # Calculate paging parameters
             from_index = (page - 1) * page_size
             
-            # 构建查询
+            # Build query
             search_body = {
                 "query": {"match_all": {}},
                 "from": from_index,
                 "size": page_size,
                 "_source": True,
-                "sort": [{"_id": {"order": "desc"}}]  # 按ID倒序，最新数据在前
+                "sort": [{"_id": {"order": "desc"}}]  # Sort by ID in descending order, latest data first
             }
             
-            # 执行搜索
+            # Execute search
             response = self.es.search(
                 index=self.index_name,
                 **search_body
             )
             
-            # 获取总数
+            # Get total
             total = response['hits']['total']['value'] if isinstance(response['hits']['total'], dict) else response['hits']['total']
             
-            # 解析结果
+            # Parse result
             items = []
             for hit in response['hits']['hits']:
                 source = hit['_source']
@@ -332,7 +332,7 @@ class ESSearchEngine(BaseSearchEngine):
             return ListDataOutput(total=total, items=items)
             
         except Exception as e:
-            print(f"ES查询数据错误: {e}")
+            print(f"ES query data error: {e}")
             return ListDataOutput(total=0, items=[])
 
 

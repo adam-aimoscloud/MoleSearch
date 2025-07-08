@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-ESSearchEngine 测试文件
-测试 insert 和 search 方法的各种功能
+ESSearchEngine test file
+Test insert and search methods
 """
 import unittest
 import time
@@ -9,7 +9,7 @@ from typing import List, Dict, Any
 import sys
 import os
 
-# 添加项目根目录到路径
+# Add project root directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from search_engine.elasticsearch.es import ESSearchEngine
@@ -18,11 +18,11 @@ from test_data import TEST_DATA, SEARCH_TEST_CASES, EMBEDDING_LABEL_TEST_CASES
 
 
 class TestESSearchEngine(unittest.TestCase):
-    """ESSearchEngine 测试类"""
+    """ESSearchEngine test class"""
 
     @classmethod
     def setUpClass(cls):
-        """测试类初始化"""
+        """Test class initialization"""
         cls.test_index = f"test_mmretriever_{int(time.time())}"
         cls.es_param = {
             "host": "localhost",
@@ -34,44 +34,44 @@ class TestESSearchEngine(unittest.TestCase):
         
         try:
             cls.search_engine = ESSearchEngine(cls.es_param)
-            print(f"使用测试索引: {cls.test_index}")
+            print(f"Using test index: {cls.test_index}")
         except Exception as e:
-            print(f"无法连接到Elasticsearch: {e}")
-            print("请确保Elasticsearch服务正在运行")
+            print(f"Cannot connect to Elasticsearch: {e}")
+            print("Please ensure Elasticsearch service is running")
             raise
 
     @classmethod
     def tearDownClass(cls):
-        """测试类清理"""
+        """Test class cleanup"""
         try:
-            # 删除测试索引
+            # Delete test index
             cls.search_engine.es.options(ignore_status=[400, 404]).indices.delete(index=cls.test_index)
-            print(f"已删除测试索引: {cls.test_index}")
+            print(f"Deleted test index: {cls.test_index}")
         except Exception as e:
-            print(f"清理测试索引失败: {e}")
+            print(f"Failed to clean up test index: {e}")
 
     def setUp(self):
-        """每个测试方法前的准备"""
-        # 清空索引数据
+        """Prepare for each test method"""
+        # Clear index data
         try:
             self.search_engine.delete_all()
         except Exception:
             pass
 
     def test_01_initialization(self):
-        """测试ES搜索引擎初始化"""
+        """Test ES search engine initialization"""
         self.assertIsNotNone(self.search_engine)
         self.assertIsNotNone(self.search_engine.es)
         self.assertEqual(self.search_engine.index_name, self.test_index)
         
-        # 测试索引是否存在
+        # Test if index exists
         self.assertTrue(self.search_engine.es.indices.exists(index=self.test_index))
 
     def test_02_insert_single_data(self):
-        """测试单条数据插入"""
+        """Test single data insertion"""
         test_data = TEST_DATA[0]
         
-        # 构建插入数据
+        # Build insert data
         insert_data = InsertData(
             text=test_data["text"],
             image=test_data["image"],
@@ -83,13 +83,13 @@ class TestESSearchEngine(unittest.TestCase):
             ]
         )
         
-        # 执行插入
+        # Execute insertion
         self.search_engine.insert(insert_data)
         
-        # 等待索引刷新
+        # Wait for index refresh
         time.sleep(1)
         
-        # 验证数据是否插入成功
+        # Verify if data is inserted successfully
         search_input = SearchInput(text=test_data["text"], topk=1)
         results = self.search_engine.search(search_input)
         
@@ -97,7 +97,7 @@ class TestESSearchEngine(unittest.TestCase):
         self.assertEqual(results.items[0].text, test_data["text"])
 
     def test_03_batch_insert(self):
-        """测试批量数据插入"""
+        """Test batch data insertion"""
         batch_data = []
         
         for test_data in TEST_DATA:
@@ -113,44 +113,44 @@ class TestESSearchEngine(unittest.TestCase):
             )
             batch_data.append(insert_data)
         
-        # 执行批量插入
+        # Execute batch insertion
         self.search_engine.batch_insert(batch_data)
         
-        # 等待索引刷新
+        # Wait for index refresh
         time.sleep(2)
         
-        # 验证数据是否插入成功
-        search_input = SearchInput(text="", topk=10)  # 获取所有数据
+        # Verify if data is inserted successfully
+        search_input = SearchInput(text="", topk=10)  # Get all data
         results = self.search_engine.search(search_input)
         
         self.assertGreaterEqual(len(results.items), len(TEST_DATA))
 
     def test_04_text_search(self):
-        """测试文本搜索功能"""
-        # 先插入测试数据
+        """Test text search function"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 执行文本搜索测试
-        search_input = SearchInput(text="机器学习", topk=3)
+        # Execute text search test
+        search_input = SearchInput(text="machine learning", topk=3)
         results = self.search_engine.search(search_input)
         
         self.assertGreater(len(results.items), 0)
         
-        # 验证结果包含相关文本
+        # Verify if result contains relevant text
         found_relevant = False
         for item in results.items:
-            if "机器学习" in item.text:
+            if "machine learning" in item.text:
                 found_relevant = True
                 break
         
         self.assertTrue(found_relevant)
 
     def test_05_text_embedding_search(self):
-        """测试文本embedding搜索"""
-        # 先插入测试数据
+        """Test text embedding search"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 使用相似的文本embedding进行搜索
+        # Use similar text embedding for search
         from test_data import BASE_TEXT_EMBEDDING, generate_similar_embedding
         similar_embedding = generate_similar_embedding(BASE_TEXT_EMBEDDING, 0.95)
         
@@ -164,16 +164,16 @@ class TestESSearchEngine(unittest.TestCase):
         results = self.search_engine.search(search_input)
         self.assertGreater(len(results.items), 0)
         
-        # 验证结果得分合理
+        # Verify if result score is reasonable
         for item in results.items:
             self.assertGreater(item.score, 0)
 
     def test_06_image_embedding_search(self):
-        """测试图片embedding搜索"""
-        # 先插入测试数据
+        """Test image embedding search"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 使用相似的图片embedding进行搜索
+        # Use similar image embedding for search
         from test_data import BASE_IMAGE_EMBEDDING, generate_similar_embedding
         similar_embedding = generate_similar_embedding(BASE_IMAGE_EMBEDDING, 0.95)
         
@@ -188,11 +188,11 @@ class TestESSearchEngine(unittest.TestCase):
         self.assertGreater(len(results.items), 0)
 
     def test_07_video_embedding_search(self):
-        """测试视频embedding搜索"""
-        # 先插入测试数据
+        """Test video embedding search"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 使用相似的视频embedding进行搜索
+        # Use similar video embedding for search
         from test_data import BASE_VIDEO_EMBEDDING, generate_similar_embedding
         similar_embedding = generate_similar_embedding(BASE_VIDEO_EMBEDDING, 0.95)
         
@@ -207,16 +207,16 @@ class TestESSearchEngine(unittest.TestCase):
         self.assertGreater(len(results.items), 0)
 
     def test_08_hybrid_search(self):
-        """测试混合搜索（文本+embedding）"""
-        # 先插入测试数据
+        """Test hybrid search (text + embedding)"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 执行混合搜索
+        # Execute hybrid search
         from test_data import BASE_TEXT_EMBEDDING, generate_similar_embedding
         similar_embedding = generate_similar_embedding(BASE_TEXT_EMBEDDING, 0.8)
         
         search_input = SearchInput(
-            text="深度学习",
+            text="deep learning",
             embeddings=[
                 EmbeddingInfo(label="text_embedding", embedding=similar_embedding)
             ],
@@ -227,11 +227,11 @@ class TestESSearchEngine(unittest.TestCase):
         self.assertGreater(len(results.items), 0)
 
     def test_09_multimodal_embedding_search(self):
-        """测试多模态embedding搜索"""
-        # 先插入测试数据
+        """Test multimodal embedding search"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 使用多种embedding进行搜索
+        # Use multiple embeddings for search
         from test_data import (BASE_TEXT_EMBEDDING, BASE_IMAGE_EMBEDDING, 
                               BASE_VIDEO_EMBEDDING, generate_similar_embedding)
         
@@ -251,30 +251,30 @@ class TestESSearchEngine(unittest.TestCase):
         self.assertGreater(len(results.items), 0)
 
     def test_10_embedding_label_mapping(self):
-        """测试embedding标签映射功能"""
+        """Test embedding label mapping function"""
         for input_label, expected_field in EMBEDDING_LABEL_TEST_CASES:
             with self.subTest(input_label=input_label):
                 actual_field = self.search_engine._get_embedding_field(input_label)
                 self.assertEqual(actual_field, expected_field,
-                               f"标签 '{input_label}' 应该映射到 '{expected_field}', 但实际映射到 '{actual_field}'")
+                               f"Label '{input_label}' should map to '{expected_field}', but actually maps to '{actual_field}'")
 
     def test_11_empty_search(self):
-        """测试空搜索（无条件搜索）"""
-        # 先插入测试数据
+        """Test empty search (no condition search)"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 执行空搜索
+        # Execute empty search
         search_input = SearchInput(topk=5)
         results = self.search_engine.search(search_input)
         
         self.assertGreater(len(results.items), 0)
 
     def test_12_topk_limit(self):
-        """测试topk限制功能"""
-        # 先插入测试数据
+        """Test topk limit function"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 测试不同的topk值
+        # Test different topk values
         for topk in [1, 3, 5]:
             with self.subTest(topk=topk):
                 search_input = SearchInput(text="", topk=topk)
@@ -283,19 +283,19 @@ class TestESSearchEngine(unittest.TestCase):
                 self.assertLessEqual(len(results.items), topk)
 
     def test_13_search_with_nonexistent_data(self):
-        """测试搜索不存在的数据"""
-        # 不插入任何数据
+        """Test search with nonexistent data"""
+        # Do not insert any data
         
-        search_input = SearchInput(text="不存在的内容", topk=5)
+        search_input = SearchInput(text="nonexistent content", topk=5)
         results = self.search_engine.search(search_input)
         
         self.assertEqual(len(results.items), 0)
 
     def test_14_insert_with_partial_data(self):
-        """测试插入部分数据"""
-        # 只包含文本和一个embedding
+        """Test insert with partial data"""
+        # Only contains text and one embedding
         insert_data = InsertData(
-            text="测试部分数据插入",
+            text="test partial data insertion",
             embeddings=[
                 EmbeddingInfo(label="text_embedding", embedding=[0.1] * 1024)
             ]
@@ -304,18 +304,18 @@ class TestESSearchEngine(unittest.TestCase):
         self.search_engine.insert(insert_data)
         time.sleep(1)
         
-        # 验证插入成功
-        search_input = SearchInput(text="测试部分数据", topk=1)
+        # Verify if insertion is successful
+        search_input = SearchInput(text="test partial data", topk=1)
         results = self.search_engine.search(search_input)
         
         self.assertGreater(len(results.items), 0)
 
     def test_15_comprehensive_search_cases(self):
-        """综合搜索测试用例"""
-        # 先插入测试数据
+        """Comprehensive search test cases"""
+        # Insert test data first
         self._insert_test_data()
         
-        # 执行预定义的搜索测试用例
+        # Execute predefined search test cases
         for test_case in SEARCH_TEST_CASES:
             with self.subTest(test_case=test_case["name"]):
                 search_input = SearchInput(
@@ -330,14 +330,14 @@ class TestESSearchEngine(unittest.TestCase):
                 results = self.search_engine.search(search_input)
                 
                 self.assertGreaterEqual(len(results.items), test_case["expected_min_results"],
-                                      f"测试用例 '{test_case['name']}' 应该返回至少 {test_case['expected_min_results']} 个结果")
+                                      f"Test case '{test_case['name']}' should return at least {test_case['expected_min_results']} results")
 
     def test_16_search_result_structure(self):
-        """测试搜索结果结构"""
-        # 先插入测试数据
+        """Test search result structure"""
+        # Insert test data first
         self._insert_test_data()
         
-        search_input = SearchInput(text="机器学习", topk=1)
+        search_input = SearchInput(text="machine learning", topk=1)
         results = self.search_engine.search(search_input)
         
         self.assertIsInstance(results, SearchOutput)
@@ -350,7 +350,7 @@ class TestESSearchEngine(unittest.TestCase):
         self.assertIsInstance(item.score, (int, float))
 
     def _insert_test_data(self):
-        """插入测试数据的辅助方法"""
+        """Insert test data helper method"""
         batch_data = []
         
         for test_data in TEST_DATA:
@@ -367,38 +367,38 @@ class TestESSearchEngine(unittest.TestCase):
             batch_data.append(insert_data)
         
         self.search_engine.batch_insert(batch_data)
-        time.sleep(2)  # 等待索引刷新
+        time.sleep(2)  # Wait for index refresh
 
 
 class TestESSearchEngineErrorHandling(unittest.TestCase):
-    """ES搜索引擎错误处理测试"""
+    """ES search engine error handling test"""
 
     def test_invalid_connection_params(self):
-        """测试无效连接参数"""
+        """Test invalid connection parameters"""
         invalid_params = {
             "host": "nonexistent_host",
             "port": 9999,
             "index": "test_index"
         }
         
-        # 这应该不会立即失败，但在实际操作时会失败
+        # This should not fail immediately, but will fail in actual operation
         try:
             engine = ESSearchEngine(invalid_params)
-            # 尝试执行操作应该失败
+            # Try to execute operation should fail
             search_input = SearchInput(text="test", topk=1)
             results = engine.search(search_input)
-            # 应该返回空结果而不是抛出异常
+            # Should return empty result instead of throwing exception
             self.assertEqual(len(results.items), 0)
         except Exception:
-            # 如果抛出异常也是可以接受的
+            # If exception is thrown, it is also acceptable
             pass
 
 
 if __name__ == '__main__':
-    print("ESSearchEngine 测试开始")
+    print("ESSearchEngine test started")
     print("=" * 60)
-    print("注意：这些测试需要Elasticsearch服务运行在localhost:9200")
+    print("Note: These tests require Elasticsearch service running on localhost:9200")
     print("=" * 60)
     
-    # 运行测试
+    # Run tests
     unittest.main(verbosity=2) 

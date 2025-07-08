@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MMRetriever API服务器启动脚本
+MMRetriever API server startup script
 """
 
 import os
@@ -8,34 +8,34 @@ import sys
 import logging
 from pathlib import Path
 
-# 添加项目根目录到Python路径
+# Add project root directory to Python path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 def setup_config():
-    """设置配置"""
+    """Set up configuration"""
     try:
-        # 导入配置管理器
+        # Import configuration manager
         from utils.config import init_config
         
-        # 初始化配置
+        # Initialize configuration
         config_manager = init_config()
         
-        print("✓ 配置文件加载成功")
+        print("✓ Configuration file loaded successfully")
         return config_manager
         
     except Exception as e:
-        print(f"❌ 配置文件加载失败: {e}")
-        print("请检查以下事项：")
-        print("1. 确保 config.yaml 文件存在")
-        print("2. 检查配置文件语法是否正确")
-        print("3. 确认所有必需的配置项都已填写")
-        print("4. 验证API密钥等凭证信息是否正确")
+        print(f"❌ Configuration file loading failed: {e}")
+        print("Please check the following:")
+        print("1. Ensure config.yaml file exists")
+        print("2. Check configuration file syntax")
+        print("3. Ensure all required configuration items are filled")
+        print("4. Verify API key and other credential information")
         sys.exit(1)
 
 
 def check_dependencies():
-    """检查依赖项"""
+    """Check dependencies"""
     required_packages = [
         'fastapi',
         'uvicorn',
@@ -52,19 +52,19 @@ def check_dependencies():
             missing_packages.append(package)
     
     if missing_packages:
-        print(f"错误：缺少依赖包: {', '.join(missing_packages)}")
-        print("请运行以下命令安装依赖：")
+        print(f"Error: missing dependencies: {', '.join(missing_packages)}")
+        print("Please run the following command to install dependencies:")
         print("  pip install -r requirements.txt")
         sys.exit(1)
     
-    print("✓ 依赖包检查通过")
+    print("✓ Dependencies check passed")
 
 
 def start_server(config_manager):
-    """启动服务器"""
+    """Start server"""
     import uvicorn
     
-    # 获取配置
+    # Get configuration
     server_config = config_manager.get_server_config()
     host = server_config.host
     port = server_config.port
@@ -72,19 +72,19 @@ def start_server(config_manager):
     reload = server_config.dev_mode
     access_log = server_config.access_log
     
-    # 获取ES配置用于显示
+    # Get ES configuration for display
     es_config = config_manager.get_elasticsearch_config()
     es_host = es_config.get('host', 'localhost')
     es_port = es_config.get('port', 9200)
     es_scheme = es_config.get('scheme', 'http')
     
-    print(f"🚀 启动MMRetriever API服务器...")
-    print(f"   地址: http://{host}:{port}")
-    print(f"   文档: http://{host}:{port}/docs")
-    print(f"   日志级别: {log_level}")
+    print(f"🚀 Starting MMRetriever API server...")
+    print(f"   Address: http://{host}:{port}")
+    print(f"   Documentation: http://{host}:{port}/docs")
+    print(f"   Log level: {log_level}")
     print(f"   Elasticsearch: {es_scheme}://{es_host}:{es_port}")
     
-    # 启动服务器
+    # Start server
     uvicorn.run(
         "main:app",
         host=host,
@@ -98,19 +98,19 @@ def start_server(config_manager):
 if __name__ == "__main__":
     print("=" * 60)
     print("MMRetriever API Server")
-    print("多模态检索系统API服务")
+    print("Multimodal search system API service")
     print("=" * 60)
     
     try:
-        # 加载配置
+        # Load configuration
         config_manager = setup_config()
         check_dependencies()
         
-        # 启动服务器
+        # Start server
         start_server(config_manager)
         
     except KeyboardInterrupt:
-        print("\n👋 服务器已停止")
+        print("\n👋 Server stopped")
     except Exception as e:
-        print(f"❌ 启动失败: {e}")
+        print(f"❌ Server startup failed: {e}")
         sys.exit(1) 

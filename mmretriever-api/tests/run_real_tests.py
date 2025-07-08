@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-真实API测试运行脚本
-此脚本将启用真实的API测试，调用实际的阿里云DashScope API服务
+Real API test runner script
+This script will enable real API tests, calling the actual Aliyun DashScope API service
 """
 
 import os
@@ -9,21 +9,21 @@ import sys
 import subprocess
 
 def main():
-    print("🔥 MMExtractor 真实API测试")
+    print("🔥 MMExtractor Real API Test")
     print("=" * 60)
-    print("⚠️  注意：此测试将调用真实的API服务，可能产生费用")
-    print("⚠️  请确保您的API key配置正确且有足够的余额")
+    print("⚠️  Note: This test will call the real API service, which may incur costs")
+    print("⚠️  Please ensure your API key is configured correctly and has sufficient balance")
     print("=" * 60)
     
-    # 设置环境变量
+    # Set environment variable
     os.environ['ENABLE_REAL_API_TESTS'] = 'true'
     
-    # 运行测试
-    print("\n🚀 开始运行真实API测试...")
+    # Run tests
+    print("\n🚀 Start running real API tests...")
     print("=" * 60)
     
     try:
-        # 只运行真实API测试类
+        # Only run real API test class
         result = subprocess.run([
             sys.executable, '-m', 'unittest', 
             'mm_extractor_test.TestMMExtractorRealAPI',
@@ -31,15 +31,15 @@ def main():
         ], cwd=os.path.dirname(__file__), capture_output=False)
         
         if result.returncode == 0:
-            print("\n✅ 所有真实API测试通过！")
+            print("\n✅ All real API tests passed!")
         else:
-            print(f"\n❌ 测试失败，退出码: {result.returncode}")
+            print(f"\n❌ Test failed, exit code: {result.returncode}")
             
     except Exception as e:
-        print(f"\n❌ 运行测试时出错: {e}")
+        print(f"\n❌ Error occurred while running tests: {e}")
     
     print("\n" + "=" * 60)
-    print("📊 测试完成")
+    print("📊 Test completed")
 
 if __name__ == '__main__':
     main() 

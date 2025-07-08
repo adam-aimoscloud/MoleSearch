@@ -1,6 +1,6 @@
 """
 MMRetriever FastAPI Application
-多模态搜索引擎API服务
+Multimodal search engine API service
 """
 
 from fastapi import FastAPI, HTTPException
@@ -13,48 +13,48 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# 全局变量存储应用状态
+# Global variable to store application state
 app_state = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
-    # 启动时执行
-    logger.info("MMRetriever API启动中...")
+    """Application lifecycle management"""
+    # Execute when starting
+    logger.info("MMRetriever API starting...")
     
-    logger.info("MMRetriever API启动完成")
+    logger.info("MMRetriever API started")
     
     yield
     
-    # 关闭时执行
-    logger.info("MMRetriever API关闭")
+    # Execute when closing
+    logger.info("MMRetriever API closed")
 
-# 创建FastAPI应用
+# Create FastAPI application
 app = FastAPI(
     title="MMRetriever API",
-    description="多模态检索系统API - 支持文本、图像、视频搜索",
+    description="Multimodal search system API - supports text, image, and video search",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
 )
 
-# 配置CORS
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 在生产环境中应该设置具体的域名
+    allow_origins=["*"],  # In production, should set specific domain names
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 注册路由
+# Register routes
 app.include_router(search_router, prefix="/api/v1", tags=["search"])
 app.include_router(file_router)
 
 @app.get("/")
 async def root():
-    """根路径健康检查"""
+    """Root path health check"""
     return {
         "message": "MMRetriever API",
         "version": "1.0.0",
@@ -63,7 +63,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """健康检查接口"""
+    """Health check interface"""
     return {
         "status": "healthy",
         "service": "MMRetriever API"

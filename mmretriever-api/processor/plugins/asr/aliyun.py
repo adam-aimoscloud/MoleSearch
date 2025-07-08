@@ -45,11 +45,11 @@ class AliyunASR(BaseASR):
             result = recognition.call(audio_url)
             if result.status_code != HTTPStatus.OK:
                 print(f'Warning: ASR failed but continuing: {result.text}')
-                return DataIO(text='')  # 返回空文本而不是抛出异常
+                return DataIO(text='')  # Return empty text instead of throwing an exception
             return DataIO(
                 text=result.output.text if hasattr(result.output, 'text') else '',
             )
         except Exception as e:
-            # ASR 失败时返回空文本，不中断整个流程
+            # Return empty text when ASR fails, without interrupting the entire process
             print(f'Warning: ASR processing failed, returning empty text: {e}')
             return DataIO(text='')

@@ -1,35 +1,35 @@
 """
-测试数据文件
-包含用于ES搜索引擎测试的embedding向量数据
+Test data file
+Contains embedding vector data for ES search engine tests
 """
 import random
 from typing import List
 
-# 设置随机种子以确保测试的可重复性
+# Set random seed to ensure test reproducibility
 random.seed(42)
 
 def generate_embedding(dims: int = 1024) -> List[float]:
-    """生成指定维度的随机embedding向量"""
+    """Generate random embedding vector of specified dimension"""
     return [random.uniform(-1.0, 1.0) for _ in range(dims)]
 
 def generate_similar_embedding(base_embedding: List[float], similarity: float = 0.8) -> List[float]:
-    """生成与基础embedding相似的向量"""
+    """Generate similar embedding vector to the base embedding"""
     result = []
     for val in base_embedding:
-        # 添加小的随机噪声，保持相似性
+        # Add small random noise to maintain similarity
         noise = random.uniform(-0.2, 0.2) * (1 - similarity)
         result.append(val + noise)
     return result
 
-# 基础embedding向量
+# Base embedding vector
 BASE_TEXT_EMBEDDING = generate_embedding(1024)
 BASE_IMAGE_EMBEDDING = generate_embedding(1024)
 BASE_VIDEO_EMBEDDING = generate_embedding(1024)
 
-# 测试数据集
+# Test data set
 TEST_DATA = [
     {
-        "text": "机器学习是人工智能的一个重要分支",
+        "text": "Machine learning is an important branch of artificial intelligence",
         "image": "/test/images/ml_concept.jpg",
         "video": "/test/videos/ml_intro.mp4",
         "text_embedding": BASE_TEXT_EMBEDDING,
@@ -37,7 +37,7 @@ TEST_DATA = [
         "video_embedding": BASE_VIDEO_EMBEDDING
     },
     {
-        "text": "深度学习通过神经网络模拟人脑的学习过程",
+        "text": "Deep learning simulates the learning process of the human brain through neural networks",
         "image": "/test/images/deep_learning.jpg",
         "video": "/test/videos/neural_network.mp4",
         "text_embedding": generate_similar_embedding(BASE_TEXT_EMBEDDING, 0.9),
@@ -45,15 +45,15 @@ TEST_DATA = [
         "video_embedding": generate_similar_embedding(BASE_VIDEO_EMBEDDING, 0.8)
     },
     {
-        "text": "自然语言处理是计算机科学的一个领域",
+        "text": "Natural language processing is a field of computer science",
         "image": "/test/images/nlp_diagram.jpg",
         "video": "/test/videos/nlp_overview.mp4",
         "text_embedding": generate_similar_embedding(BASE_TEXT_EMBEDDING, 0.7),
-        "image_embedding": generate_embedding(1024),  # 不相似的图片embedding
-        "video_embedding": generate_embedding(1024)   # 不相似的视频embedding
+        "image_embedding": generate_embedding(1024),  # dissimilar image embedding
+        "video_embedding": generate_embedding(1024)   # dissimilar video embedding
     },
     {
-        "text": "计算机视觉让机器能够识别和理解图像",
+        "text": "Computer vision enables machines to recognize and understand images",
         "image": "/test/images/computer_vision.jpg",
         "video": "/test/videos/cv_applications.mp4",
         "text_embedding": generate_similar_embedding(BASE_TEXT_EMBEDDING, 0.6),
@@ -61,7 +61,7 @@ TEST_DATA = [
         "video_embedding": generate_similar_embedding(BASE_VIDEO_EMBEDDING, 0.85)
     },
     {
-        "text": "强化学习通过奖励机制训练智能体",
+        "text": "Reinforcement learning trains agents through reward mechanisms",
         "image": "/test/images/reinforcement_learning.jpg",
         "video": "/test/videos/rl_demo.mp4",
         "text_embedding": generate_similar_embedding(BASE_TEXT_EMBEDDING, 0.5),
@@ -70,28 +70,28 @@ TEST_DATA = [
     }
 ]
 
-# 搜索测试用例
+# Search test cases
 SEARCH_TEST_CASES = [
     {
-        "name": "文本搜索 - 精确匹配",
+        "name": "Text search - exact match",
         "search_input": {
-            "text": "机器学习",
+            "text": "Machine learning",
             "embeddings": [],
             "topk": 3
         },
         "expected_min_results": 1
     },
     {
-        "name": "文本搜索 - 相关词汇",
+        "name": "Text search - related words",
         "search_input": {
-            "text": "人工智能",
+            "text": "Artificial intelligence",
             "embeddings": [],
             "topk": 5
         },
         "expected_min_results": 1
     },
     {
-        "name": "文本embedding搜索 - 相似向量",
+        "name": "Text embedding search - similar vector",
         "search_input": {
             "text": "",
             "embeddings": [
@@ -119,7 +119,7 @@ SEARCH_TEST_CASES = [
         "expected_min_results": 1
     },
     {
-        "name": "视频embedding搜索 - 相似向量",
+        "name": "Video embedding search - similar vector",
         "search_input": {
             "text": "",
             "embeddings": [
@@ -133,9 +133,9 @@ SEARCH_TEST_CASES = [
         "expected_min_results": 1
     },
     {
-        "name": "混合搜索 - 文本+embedding",
+        "name": "Hybrid search - text + embedding",
         "search_input": {
-            "text": "深度学习",
+            "text": "Deep learning",
             "embeddings": [
                 {
                     "label": "text_embedding",
@@ -151,7 +151,7 @@ SEARCH_TEST_CASES = [
         "expected_min_results": 1
     },
     {
-        "name": "多模态embedding搜索",
+        "name": "Multimodal embedding search",
         "search_input": {
             "text": "",
             "embeddings": [
@@ -174,7 +174,7 @@ SEARCH_TEST_CASES = [
     }
 ]
 
-# 不同embedding标签的测试数据
+# Test data for different embedding labels
 EMBEDDING_LABEL_TEST_CASES = [
     ("text_embedding", "text_embedding"),
     ("tembed", "text_embedding"),
@@ -187,5 +187,5 @@ EMBEDDING_LABEL_TEST_CASES = [
     ("vembed", "video_embedding"),
     ("video", "video_embedding"),
     ("vid", "video_embedding"),
-    ("unknown_label", "text_embedding")  # 默认映射到text_embedding
+    ("unknown_label", "text_embedding")  # Default mapped to text_embedding
 ] 

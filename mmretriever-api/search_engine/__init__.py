@@ -1,9 +1,9 @@
 """
-搜索引擎模块初始化
+Search engine module initialization
 """
 
 from .base import BaseSearchEngine, SearchEngineFactory, SearchEngineParam
 from .elasticsearch.es import ESSearchEngine
 
-# 自动注册所有搜索引擎
+# Automatically register all search engines
 __all__ = ['BaseSearchEngine', 'SearchEngineFactory', 'SearchEngineParam', 'ESSearchEngine']

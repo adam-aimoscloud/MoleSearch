@@ -33,7 +33,7 @@ class QwenVEmbed(BaseVEmbed):
                 embeddings=[item['embedding'] for item in rsp.output['embeddings']],
             )
         except Exception as e:
-            # 改善错误消息，提供更多上下文
+            # Improve error message, provide more context
             if "download" in str(e).lower():
                 raise Exception(f'QwenVEmbedPlugin forward failed: Video URL download error - {input.video} may be inaccessible')
             else:

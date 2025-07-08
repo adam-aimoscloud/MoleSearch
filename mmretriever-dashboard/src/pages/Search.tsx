@@ -133,7 +133,7 @@ const Search: React.FC = () => {
     }
   };
 
-  // 全量数据查询
+  // Load all data
   const loadDataList = async (page: number = 1, pageSize: number = 10) => {
     try {
       setDataLoading(true);
@@ -160,7 +160,7 @@ const Search: React.FC = () => {
     }
   };
 
-  // 页面加载时自动加载第一页数据
+  // Load first page data when page loads
   useEffect(() => {
     loadDataList();
   }, []);
@@ -171,29 +171,29 @@ const Search: React.FC = () => {
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space>
             <Tag color="blue">#{index + 1}</Tag>
-            <Tag color="green">得分: {item.score.toFixed(3)}</Tag>
+            <Tag color="green">Score: {item.score.toFixed(3)}</Tag>
             <Text strong>ID: {item.id}</Text>
           </Space>
           
           {item.text && (
             <div>
-              <Text strong>文本内容:</Text>
+              <Text strong>Text content:</Text>
               <Text>{item.text}</Text>
             </div>
           )}
           
           {item.image_url && (
             <div>
-              <Text strong>图像:</Text>
+              <Text strong>Image:</Text>
               <div>
-                <img src={item.image_url} alt="图片" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
+                <img src={item.image_url} alt="Image" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
               </div>
             </div>
           )}
           
           {item.video_url && (
             <div>
-              <Text strong>视频:</Text>
+              <Text strong>Video:</Text>
               <div>
                 <video src={item.video_url} controls style={{ maxWidth: 240, maxHeight: 160, borderRadius: 4, border: '1px solid #eee' }} />
               </div>
@@ -202,14 +202,14 @@ const Search: React.FC = () => {
           
           {item.image_text && (
             <div>
-              <Text strong>图像文本:</Text>
+              <Text strong>Image text:</Text>
               <Text type="secondary">{item.image_text}</Text>
             </div>
           )}
           
           {item.video_text && (
             <div>
-              <Text strong>视频文本:</Text>
+              <Text strong>Video text:</Text>
               <Text type="secondary">{item.video_text}</Text>
             </div>
           )}
@@ -229,23 +229,23 @@ const Search: React.FC = () => {
           
           {item.text && (
             <div>
-              <Text strong>文本内容:</Text>
+              <Text strong>Text content:</Text>
               <Text>{item.text}</Text>
             </div>
           )}
           
           {item.image_url && (
             <div>
-              <Text strong>图像:</Text>
+              <Text strong>Image:</Text>
               <div>
-                <img src={item.image_url} alt="图片" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
+                <img src={item.image_url} alt="Image" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
               </div>
             </div>
           )}
           
           {item.video_url && (
             <div>
-              <Text strong>视频:</Text>
+              <Text strong>Video:</Text>
               <div>
                 <video src={item.video_url} controls style={{ maxWidth: 240, maxHeight: 160, borderRadius: 4, border: '1px solid #eee' }} />
               </div>
@@ -254,14 +254,14 @@ const Search: React.FC = () => {
           
           {item.image_text && (
             <div>
-              <Text strong>图像文本:</Text>
+              <Text strong>Image text:</Text>
               <Text type="secondary">{item.image_text}</Text>
             </div>
           )}
           
           {item.video_text && (
             <div>
-              <Text strong>视频文本:</Text>
+              <Text strong>Video text:</Text>
               <Text type="secondary">{item.video_text}</Text>
             </div>
           )}

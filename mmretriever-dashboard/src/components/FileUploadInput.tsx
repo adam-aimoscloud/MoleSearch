@@ -15,7 +15,7 @@ interface FileUploadInputProps {
 const FileUploadInput: React.FC<FileUploadInputProps> = ({
   value,
   onChange,
-  placeholder = "请输入URL或上传文件",
+  placeholder = "Enter URL or upload file",
   accept = "*/*",
   fileType,
   label
@@ -40,13 +40,13 @@ const FileUploadInput: React.FC<FileUploadInputProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        message.success('文件上传成功');
+        message.success('File uploaded successfully');
         onChange?.(data.file_url);
       } else {
-        message.error(`上传失败: ${data.message}`);
+        message.error(`Upload failed: ${data.message}`);
       }
     } catch (error: any) {
-      message.error(`上传失败: ${error.message}`);
+      message.error(`Upload failed: ${error.message}`);
     } finally {
       setUploading(false);
     }
@@ -56,7 +56,7 @@ const FileUploadInput: React.FC<FileUploadInputProps> = ({
     showUploadList: false,
     beforeUpload: (file: File) => {
       handleUpload(file);
-      return false; // 阻止默认上传行为
+      return false; // Prevent default upload behavior
     },
     accept,
   };
@@ -74,9 +74,9 @@ const FileUploadInput: React.FC<FileUploadInputProps> = ({
         <Button 
           icon={<UploadOutlined />} 
           loading={uploading}
-          title="上传文件"
+          title="Upload file"
         >
-          上传
+          Upload
         </Button>
       </Upload>
     </Space.Compact>

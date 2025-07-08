@@ -1,6 +1,6 @@
 """
-配置管理器
-负责读取和解析 config.yaml 配置文件
+Config manager
+Responsible for reading and parsing the config.yaml file
 """
 
 import os
@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class ServerConfig:
-    """服务器配置"""
+    """Server configuration"""
     host: str = "0.0.0.0"
     port: int = 8000
     log_level: str = "INFO"
@@ -33,7 +33,7 @@ class ServerConfig:
 
 @dataclass
 class SearchEngineConfig:
-    """搜索引擎配置"""
+    """Search engine configuration"""
     type: str = "elasticsearch"
     config: Dict[str, Any] = None
     
@@ -44,7 +44,7 @@ class SearchEngineConfig:
 
 @dataclass
 class MMExtractorConfig:
-    """MMExtractor配置"""
+    """MMExtractor configuration"""
     name: str = "MMExtractor"
     type: str = "extraction"
     enable: bool = True
@@ -56,7 +56,7 @@ class MMExtractorConfig:
 
 
 class ConfigManager:
-    """配置管理器"""
+    """Config manager"""
     
     def __init__(self, config_path: str = "config.yaml"):
         self.config_path = Path(config_path)
@@ -64,34 +64,34 @@ class ConfigManager:
         self._load_config()
     
     def _load_config(self):
-        """加载配置文件"""
+        """Load configuration file"""
         try:
             if not self.config_path.exists():
-                raise FileNotFoundError(f"配置文件不存在: {self.config_path}")
+                raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
             
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 config_content = f.read()
             
-            # 解析YAML
+            # Parse YAML
             self._config = yaml.safe_load(config_content)
             
-            # 验证配置
+            # Validate configuration
             self._validate_config()
             
-            logger.info(f"配置文件加载成功: {self.config_path}")
+            logger.info(f"Configuration file loaded successfully: {self.config_path}")
             
         except Exception as e:
-            logger.error(f"配置文件加载失败: {e}")
+            logger.error(f"Configuration file loading failed: {e}")
             raise
     
 
     
     def _validate_config(self):
-        """验证配置文件"""
+        """Validate configuration file"""
         if not self._config:
-            raise ValueError("配置文件为空")
+            raise ValueError("Configuration file is empty")
         
-        # 基本配置验证
+        # Basic configuration validation
         required_sections = ['server', 'mmextractor', 'search_engine']
         missing_sections = []
         
@@ -100,29 +100,29 @@ class ConfigManager:
                 missing_sections.append(section)
         
         if missing_sections:
-            raise ValueError(f"缺少必需的配置部分: {missing_sections}")
+            raise ValueError(f"Missing required configuration sections: {missing_sections}")
         
-        # 验证插件配置中的API密钥
+        # Validate API keys in plugin configuration
         self._validate_api_keys()
         
-        logger.info("配置验证通过")
+        logger.info("Configuration validation passed")
     
     def _validate_api_keys(self):
-        """验证API密钥配置"""
+        """Validate API key configuration"""
         plugins = self._config.get('mmextractor', {}).get('plugins', {})
         
         for plugin_name, plugin_config in plugins.items():
             param = plugin_config.get('param', {})
             api_key = param.get('api_key', '')
             
-            # 检查是否还是占位符
+            # Check if it's still a placeholder
             if isinstance(api_key, str) and (api_key.startswith('your_') and api_key.endswith('_here')):
-                logger.warning(f"插件 {plugin_name} 的API密钥仍为占位符，请配置真实的API密钥")
+                logger.warning(f"API key for plugin {plugin_name} is still a placeholder, please configure a real API key")
             elif isinstance(api_key, str) and len(api_key) < 10:
-                logger.warning(f"插件 {plugin_name} 的API密钥长度过短，请检查配置")
+                logger.warning(f"API key for plugin {plugin_name} is too short, please check the configuration")
     
     def get_server_config(self) -> ServerConfig:
-        """获取服务器配置"""
+        """Get server configuration"""
         server_config = self._config.get('server', {})
         return ServerConfig(
             host=server_config.get('host', '0.0.0.0'),
@@ -136,7 +136,7 @@ class ConfigManager:
         )
     
     def get_mmextractor_config(self) -> MMExtractorConfig:
-        """获取MMExtractor配置"""
+        """Get MMExtractor configuration"""
         mmextractor_config = self._config.get('mmextractor', {})
         return MMExtractorConfig(
             name=mmextractor_config.get('name', 'MMExtractor'),
@@ -146,7 +146,7 @@ class ConfigManager:
         )
     
     def get_search_engine_config(self) -> SearchEngineConfig:
-        """获取搜索引擎配置"""
+        """Get search engine configuration"""
         search_engine_config = self._config.get('search_engine', {})
         return SearchEngineConfig(
             type=search_engine_config.get('type', 'elasticsearch'),
@@ -154,7 +154,7 @@ class ConfigManager:
         )
     
     def get_config(self, key: str, default: Any = None) -> Any:
-        """获取配置项"""
+        """Get configuration item"""
         keys = key.split('.')
         value = self._config
         
@@ -167,51 +167,51 @@ class ConfigManager:
         return value
     
     def get_elasticsearch_config(self) -> Dict[str, Any]:
-        """获取Elasticsearch配置"""
+        """Get Elasticsearch configuration"""
         return self.get_config('search_engine.config', {})
     
     def get_plugin_config(self, plugin_name: str) -> Dict[str, Any]:
-        """获取插件配置"""
+        """Get plugin configuration"""
         return self.get_config(f'mmextractor.plugins.{plugin_name}', {})
     
     def get_performance_config(self) -> Dict[str, Any]:
-        """获取性能配置"""
+        """Get performance configuration"""
         return self.get_config('performance', {})
     
     def get_logging_config(self) -> Dict[str, Any]:
-        """获取日志配置"""
+        """Get logging configuration"""
         return self.get_config('logging', {})
     
     def get_data_processing_config(self) -> Dict[str, Any]:
-        """获取数据处理配置"""
+        """Get data processing configuration"""
         return self.get_config('data_processing', {})
     
     def get_storage_config(self) -> Dict[str, Any]:
-        """获取存储配置"""
+        """Get storage configuration"""
         return self.get_config('storage', {})
     
     def get_security_config(self) -> Dict[str, Any]:
-        """获取安全配置"""
+        """Get security configuration"""
         return self.get_config('security', {})
     
     def get_monitoring_config(self) -> Dict[str, Any]:
-        """获取监控配置"""
+        """Get monitoring configuration"""
         return self.get_config('monitoring', {})
     
     def reload_config(self):
-        """重新加载配置"""
+        """Reload configuration"""
         self._load_config()
-        logger.info("配置已重新加载")
+        logger.info("Configuration reloaded")
     
 
 
 
-# 全局配置管理器实例
+# Global config manager instance
 config_manager = None
 
 
 def get_config_manager(config_path: str = "config.yaml") -> ConfigManager:
-    """获取配置管理器实例"""
+    """Get config manager instance"""
     global config_manager
     if config_manager is None:
         config_manager = ConfigManager(config_path)
@@ -219,7 +219,7 @@ def get_config_manager(config_path: str = "config.yaml") -> ConfigManager:
 
 
 def init_config(config_path: str = "config.yaml"):
-    """初始化配置"""
+    """Initialize configuration"""
     global config_manager
     config_manager = ConfigManager(config_path)
     return config_manager 

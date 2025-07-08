@@ -1,5 +1,5 @@
 from .pipelines import MMExtractor
 from .core import PipelineParam, MMData
 
-# 导入插件模块以触发注册
+# Import plugin modules to trigger registration
 from .plugins import asr, tembed, iembed, vembed, vlm

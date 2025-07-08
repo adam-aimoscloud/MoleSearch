@@ -21,38 +21,38 @@ class MMExtractor(Pipeline):
             data_io = DataIO(
                 text=input.text.text,
             )
-            # 对于文本输入，直接使用文本嵌入插件
+            # For text input, directly use text embedding plugin
             embed_result = await self.tembed.forward(data_io)
             output.text.text_embeddings = embed_result.embeddings
         if input.image and input.image.image is not None:
-            # 图像嵌入
+            # Image embedding
             data_io = DataIO(
                 image=input.image.image,
             )
             embed_result = await self.iembed.forward(data_io)
             output.image.image_embedding = embed_result.embeddings[0] if embed_result.embeddings else None
             
-            # VLM生成文本描述
+            # VLM generate text description
             vlm_result = await self.vlm.forward(data_io)
             output.image.text = vlm_result.text
             
-            # 文本嵌入
+            # Text embedding
             text_data_io = DataIO(text=vlm_result.text)
             text_embed_result = await self.tembed.forward(text_data_io)
             output.image.text_embeddings = text_embed_result.embeddings
         if input.video and input.video.video is not None:
-            # 视频嵌入
+            # Video embedding
             data_io = DataIO(
                 video=input.video.video,
             )
             embed_result = await self.vembed.forward(data_io)
             output.video.video_embedding = embed_result.embeddings[0] if embed_result.embeddings else None
             
-            # ASR提取音频文本
+            # ASR extract audio text
             asr_result = await self.asr.forward(data_io)
             output.video.text = asr_result.text
             
-            # 文本嵌入
+            # Text embedding
             text_data_io = DataIO(text=asr_result.text)
             text_embed_result = await self.tembed.forward(text_data_io)
             output.video.text_embeddings = text_embed_result.embeddings

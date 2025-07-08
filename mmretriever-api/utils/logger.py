@@ -2,23 +2,23 @@ import logging
 import sys
 from typing import Optional
 
-# 全局日志配置
+# Global logger configuration
 _logger_initialized = False
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    获取日志记录器
+    Get logger
     
     Args:
-        name: 日志记录器名称，如果为None则使用调用模块的名称
+        name: Logger name, if None, use the name of the calling module
     
     Returns:
-        配置好的日志记录器
+        Configured logger
     """
     global _logger_initialized
     
     if not _logger_initialized:
-        # 配置根日志记录器
+        # Configure root logger
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,5 +33,5 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     
     return logging.getLogger(name)
 
-# 为向后兼容保留原有的logger变量
+# For backward compatibility, keep the original logger variable
 logger = get_logger(__name__)

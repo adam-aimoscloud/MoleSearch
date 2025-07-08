@@ -16,7 +16,7 @@ class PipelineParam:
     enable: bool = field(default=False)
     plugins: Dict[str, BasePluginParam] = field(default_factory=dict)
 
-# 在装饰器之后重新定义from_dict方法
+# Redefine from_dict method after decorator
 def _pipeline_from_dict(cls, config: Dict[str, Any]) -> 'PipelineParam':
     instance = cls()
     instance.name = config['name']
@@ -30,14 +30,14 @@ def _pipeline_from_dict(cls, config: Dict[str, Any]) -> 'PipelineParam':
         instance.plugins[name] = plugin_param_instance
     return instance
 
-# 覆盖dataclass_json的from_dict方法
+# Override dataclass_json's from_dict method
 PipelineParam.from_dict = classmethod(_pipeline_from_dict)
 
     
 def get_plugin_param(self, name: str) -> BasePluginParam:
     return self.plugins[name]
 
-# 将get_plugin_param方法添加到PipelineParam类
+# Add get_plugin_param method to PipelineParam class
 PipelineParam.get_plugin_param = get_plugin_param
 
 

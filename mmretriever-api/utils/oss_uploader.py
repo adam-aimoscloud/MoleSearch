@@ -1,6 +1,6 @@
 """
-OSS文件上传工具
-支持文件上传到阿里云OSS，使用指定的路径格式
+OSS file upload tool
+Supports file upload to Aliyun OSS, using specified path format
 """
 
 import os
@@ -16,10 +16,10 @@ logger = get_logger(__name__)
 
 
 class OSSUploader:
-    """OSS文件上传器"""
+    """OSS file uploader"""
     
     def __init__(self):
-        """初始化OSS上传器"""
+        """Initialize OSS uploader"""
         config_manager = get_config_manager()
         credentials = config_manager.get_config('credentials.oss', {})
         
@@ -29,46 +29,46 @@ class OSSUploader:
         self.bucket_name = credentials.get('bucket_name', '')
         
         if not all([self.access_key_id, self.access_key_secret, self.endpoint, self.bucket_name]):
-            raise ValueError("OSS配置不完整，请检查credentials.oss配置")
+            raise ValueError("OSS configuration is incomplete, please check credentials.oss configuration")
         
-        # 初始化OSS客户端
+        # Initialize OSS client
         self.auth = oss2.Auth(self.access_key_id, self.access_key_secret)
         self.bucket = oss2.Bucket(self.auth, self.endpoint, self.bucket_name)
         
-        logger.info(f"OSS上传器初始化完成，Bucket: {self.bucket_name}")
+        logger.info(f"OSS uploader initialized, Bucket: {self.bucket_name}")
     
     def upload_file(self, file_path: str, file_type: str = "file") -> Dict[str, Any]:
         """
-        上传文件到OSS
+        Upload file to OSS
         
         Args:
-            file_path: 本地文件路径
-            file_type: 文件类型标识（用于路径分类）
+            file_path: Local file path
+            file_type: File type identifier (for path classification)
             
         Returns:
-            Dict包含上传结果信息
+            Dict containing upload result information
         """
         try:
-            # 检查文件是否存在
+            # Check if file exists
             if not os.path.exists(file_path):
-                raise FileNotFoundError(f"文件不存在: {file_path}")
+                raise FileNotFoundError(f"File not found: {file_path}")
             
-            # 获取文件信息
+            # Get file information
             file_size = os.path.getsize(file_path)
             file_extension = os.path.splitext(file_path)[1]
             
-            # 生成OSS路径
+            # Generate OSS path
             oss_path = self._generate_oss_path(file_type, file_extension)
             
-            logger.info(f"开始上传文件: {file_path} -> {oss_path}")
+            logger.info(f"Uploading file: {file_path} -> {oss_path}")
             
-            # 上传文件到OSS
+            # Upload file to OSS
             result = self.bucket.put_object_from_file(oss_path, file_path)
             
             if result.status != 200:
-                raise Exception(f"OSS上传失败，状态码: {result.status}")
+                raise Exception(f"OSS upload failed, status code: {result.status}")
             
-            # 构建访问URL
+            # Build access URL
             file_url = f"https://{self.bucket_name}.{self.endpoint.replace('https://', '')}/{oss_path}"
             
             upload_info = {
@@ -80,11 +80,11 @@ class OSSUploader:
                 'upload_time': datetime.now().isoformat()
             }
             
-            logger.info(f"文件上传成功: {file_url}")
+            logger.info(f"File uploaded successfully: {file_url}")
             return upload_info
             
         except Exception as e:
-            logger.error(f"文件上传失败: {str(e)}")
+            logger.error(f"File upload failed: {str(e)}")
             return {
                 'success': False,
                 'error': str(e),
@@ -93,32 +93,32 @@ class OSSUploader:
     
     def upload_file_content(self, file_content: bytes, file_name: str, file_type: str = "file") -> Dict[str, Any]:
         """
-        上传文件内容到OSS
+        Upload file content to OSS
         
         Args:
-            file_content: 文件内容字节
-            file_name: 文件名
-            file_type: 文件类型标识
+            file_content: File content bytes
+            file_name: File name
+            file_type: File type identifier
             
         Returns:
-            Dict包含上传结果信息
+            Dict containing upload result information
         """
         try:
-            # 获取文件扩展名
+            # Get file extension
             file_extension = os.path.splitext(file_name)[1]
             
-            # 生成OSS路径
+            # Generate OSS path
             oss_path = self._generate_oss_path(file_type, file_extension)
             
-            logger.info(f"开始上传文件内容: {file_name} -> {oss_path}")
+            logger.info(f"Uploading file content: {file_name} -> {oss_path}")
             
-            # 上传文件内容到OSS
+            # Upload file content to OSS
             result = self.bucket.put_object(oss_path, file_content)
             
             if result.status != 200:
-                raise Exception(f"OSS上传失败，状态码: {result.status}")
+                raise Exception(f"OSS upload failed, status code: {result.status}")
             
-            # 构建访问URL
+            # Build access URL
             file_url = f"https://{self.bucket_name}.{self.endpoint.replace('https://', '')}/{oss_path}"
             
             upload_info = {
@@ -130,11 +130,11 @@ class OSSUploader:
                 'upload_time': datetime.now().isoformat()
             }
             
-            logger.info(f"文件内容上传成功: {file_url}")
+            logger.info(f"File content uploaded successfully: {file_url}")
             return upload_info
             
         except Exception as e:
-            logger.error(f"文件内容上传失败: {str(e)}")
+            logger.error(f"File content upload failed: {str(e)}")
             return {
                 'success': False,
                 'error': str(e),
@@ -143,57 +143,57 @@ class OSSUploader:
     
     def _generate_oss_path(self, file_type: str, file_extension: str) -> str:
         """
-        生成OSS存储路径
+        Generate OSS storage path
         
         Args:
-            file_type: 文件类型标识
-            file_extension: 文件扩展名
+            file_type: File type identifier
+            file_extension: File extension
             
         Returns:
-            OSS存储路径
+            OSS storage path
         """
-        # 获取当前日期
+        # Get current date
         today = datetime.now().strftime("%Y%m%d")
         
-        # 生成时间戳和UUID
+        # Generate timestamp and UUID
         timestamp = str(int(datetime.now().timestamp()))
         unique_id = str(uuid.uuid4())
         
-        # 构建路径: /mmretriever/当天时间/timestamp+uuid
+        # Build path: /mmretriever/current date/timestamp+uuid
         oss_path = f"mmretriever/{today}/{timestamp}_{unique_id}{file_extension}"
         
         return oss_path
     
     def delete_file(self, oss_path: str) -> bool:
         """
-        删除OSS文件
+        Delete OSS file
         
         Args:
-            oss_path: OSS文件路径
+            oss_path: OSS file path
             
         Returns:
-            是否删除成功
+            Whether the deletion is successful
         """
         try:
             self.bucket.delete_object(oss_path)
-            logger.info(f"文件删除成功: {oss_path}")
+            logger.info(f"File deleted successfully: {oss_path}")
             return True
         except Exception as e:
-            logger.error(f"文件删除失败: {oss_path}, 错误: {str(e)}")
+            logger.error(f"File deletion failed: {oss_path}, error: {str(e)}")
             return False
     
     def get_file_info(self, oss_path: str) -> Optional[Dict[str, Any]]:
         """
-        获取文件信息
+        Get file information
         
         Args:
-            oss_path: OSS文件路径
+            oss_path: OSS file path
             
         Returns:
-            文件信息字典
+            File information dictionary
         """
         try:
-            # 获取文件元信息
+            # Get file metadata
             head_result = self.bucket.head_object(oss_path)
             
             file_info = {
@@ -207,13 +207,13 @@ class OSSUploader:
             return file_info
             
         except oss2.exceptions.NoSuchKey:
-            logger.warning(f"文件不存在: {oss_path}")
+            logger.warning(f"File not found: {oss_path}")
             return None
         except Exception as e:
-            logger.error(f"获取文件信息失败: {oss_path}, 错误: {str(e)}")
+            logger.error(f"Failed to get file information: {oss_path}, error: {str(e)}")
             return None
 
 
 def get_oss_uploader() -> OSSUploader:
-    """获取OSS上传器实例"""
+    """Get OSS uploader instance"""
     return OSSUploader() 

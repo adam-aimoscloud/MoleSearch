@@ -63,7 +63,7 @@ const DataManagement: React.FC = () => {
     try {
       setLoading(true);
       
-      // 解析批量数据
+      // Parse batch data
       const lines = values.batch_data.trim().split('\n').filter(line => line.trim());
       const batchData: InsertDataRequest[] = [];
       
@@ -103,9 +103,9 @@ const DataManagement: React.FC = () => {
     }
   };
 
-  const sampleBatchData = `{"text": "人工智能是现代科技的重要分支", "image_url": "", "video_url": ""}
-{"text": "机器学习通过数据训练模型来做出预测", "image_url": "", "video_url": ""}
-{"text": "深度学习使用神经网络处理复杂数据", "image_url": "", "video_url": ""}`;
+  const sampleBatchData = `{"text": "Artificial intelligence is an important branch of modern technology", "image_url": "", "video_url": ""}
+{"text": "Machine learning uses data training models to make predictions", "image_url": "", "video_url": ""}
+{"text": "Deep learning uses neural networks to process complex data", "image_url": "", "video_url": ""}`;
 
   return (
     <div>
@@ -276,17 +276,17 @@ const DataManagement: React.FC = () => {
           <Text strong>{t('single_data_format')}:</Text>
           <Text code>
             {`{
-  "text": "文本内容",
-  "image_url": "图像URL地址",
-  "video_url": "视频URL地址"
+  "text": "Text content",
+  "image_url": "Image URL address",
+  "video_url": "Video URL address"
 }`}
           </Text>
           
           <Text strong>{t('batch_data_format')}:</Text>
           <Text code>
-            {`{"text": "第一条数据", "image_url": "", "video_url": ""}
-{"text": "第二条数据", "image_url": "", "video_url": ""}
-{"text": "第三条数据", "image_url": "", "video_url": ""}`}
+            {`{"text": "First data", "image_url": "", "video_url": ""}
+{"text": "Second data", "image_url": "", "video_url": ""}
+{"text": "Third data", "image_url": "", "video_url": ""}`}
           </Text>
           
           <Text type="secondary">

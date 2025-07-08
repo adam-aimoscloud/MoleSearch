@@ -1,5 +1,5 @@
 """
-搜索处理器 - 实现多模态搜索API
+Search handler - Implement multimodal search API
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -25,11 +25,11 @@ logger = get_logger(__name__)
 
 router = APIRouter()
 
-# 搜索服务实例
+# Search service instance
 search_service = None
 
 def handle_service_exception(e: Exception) -> HTTPException:
-    """处理服务异常，返回合适的HTTP异常"""
+    """Handle service exception, return appropriate HTTP exception"""
     if isinstance(e, ValidationException):
         return HTTPException(status_code=422, detail=str(e))
     elif isinstance(e, MediaProcessingException):
@@ -43,11 +43,11 @@ def handle_service_exception(e: Exception) -> HTTPException:
     elif isinstance(e, ServiceException):
         return HTTPException(status_code=500, detail=str(e))
     else:
-        # 未知异常，返回500
-        return HTTPException(status_code=500, detail=f"服务异常: {str(e)}")
+        # Unknown exception, return 500
+        return HTTPException(status_code=500, detail=f"Service exception: {str(e)}")
 
 async def get_search_service():
-    """获取搜索服务实例"""
+    """Get search service instance"""
     global search_service
     if search_service is None:
         search_service = SearchService()
@@ -61,20 +61,20 @@ async def search_text(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    文本搜索接口
+    Text search interface
     
-    - **query**: 搜索查询文本
-    - **top_k**: 返回结果数量，默认10，最大100
+    - **query**: Search query text
+    - **top_k**: Return result count, default 10, maximum 100
     """
     start_time = time.time()
     
     try:
-        logger.info(f"文本搜索请求: {request.query[:100]}...")
+        logger.info(f"Text search request: {request.query[:100]}...")
         
-        # 执行搜索
+        # Execute search
         results = await service.search_text(request.query, request.top_k)
         
-        # 构建响应
+        # Build response
         search_results = []
         for item in results:
             search_results.append(SearchResultItem(
@@ -88,22 +88,22 @@ async def search_text(
             ))
         
         query_time = time.time() - start_time
-        logger.info(f"文本搜索完成，耗时: {query_time:.3f}s，结果数: {len(search_results)}")
+        logger.info(f"Text search completed, time: {query_time:.3f}s, result count: {len(search_results)}")
         
         return SearchResponse(
             success=True,
-            message="搜索完成",
+            message="Search completed",
             total=len(search_results),
             results=search_results,
             query_time=query_time
         )
         
     except Exception as e:
-        logger.error(f"文本搜索失败: {str(e)}")
+        logger.error(f"Text search failed: {str(e)}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=f"搜索失败: {str(e)}"
+            detail=f"Search failed: {str(e)}"
         )
 
 
@@ -113,20 +113,20 @@ async def search_image(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    图像搜索接口
+    Image search interface
     
-    - **image_url**: 图像URL地址
-    - **top_k**: 返回结果数量，默认10，最大100
+    - **image_url**: Image URL address
+    - **top_k**: Return result count, default 10, maximum 100
     """
     start_time = time.time()
     
     try:
-        logger.info(f"图像搜索请求: {request.image_url}")
+        logger.info(f"Image search request: {request.image_url}")
         
-        # 执行搜索
+        # Execute search
         results = await service.search_image(request.image_url, request.top_k)
         
-        # 构建响应
+        # Build response
         search_results = []
         for item in results:
             search_results.append(SearchResultItem(
@@ -140,18 +140,18 @@ async def search_image(
             ))
         
         query_time = time.time() - start_time
-        logger.info(f"图像搜索完成，耗时: {query_time:.3f}s，结果数: {len(search_results)}")
+        logger.info(f"Image search completed, time: {query_time:.3f}s, result count: {len(search_results)}")
         
         return SearchResponse(
             success=True,
-            message="搜索完成",
+            message="Search completed",
             total=len(search_results),
             results=search_results,
             query_time=query_time
         )
         
     except Exception as e:
-        logger.error(f"图像搜索失败: {str(e)}")
+        logger.error(f"Image search failed: {str(e)}")
         if not isinstance(e, MMRetrieverException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
@@ -163,20 +163,20 @@ async def search_video(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    视频搜索接口
+    Video search interface
     
-    - **video_url**: 视频URL地址
-    - **top_k**: 返回结果数量，默认10，最大100
+    - **video_url**: Video URL address
+    - **top_k**: Return result count, default 10, maximum 100
     """
     start_time = time.time()
     
     try:
-        logger.info(f"视频搜索请求: {request.video_url}")
+        logger.info(f"Video search request: {request.video_url}")
         
-        # 执行搜索
+        # Execute search
         results = await service.search_video(request.video_url, request.top_k)
         
-        # 构建响应
+        # Build response
         search_results = []
         for item in results:
             search_results.append(SearchResultItem(
@@ -190,18 +190,18 @@ async def search_video(
             ))
         
         query_time = time.time() - start_time
-        logger.info(f"视频搜索完成，耗时: {query_time:.3f}s，结果数: {len(search_results)}")
+        logger.info(f"Video search completed, time: {query_time:.3f}s, result count: {len(search_results)}")
         
         return SearchResponse(
             success=True,
-            message="搜索完成",
+            message="Search completed",
             total=len(search_results),
             results=search_results,
             query_time=query_time
         )
         
     except Exception as e:
-        logger.error(f"视频搜索失败: {str(e)}")
+        logger.error(f"Video search failed: {str(e)}")
         if not isinstance(e, MMRetrieverException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
@@ -213,21 +213,21 @@ async def search_multimodal(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    多模态搜索接口
+    Multimodal search interface
     
-    - **text**: 文本查询（可选）
-    - **image_url**: 图像URL（可选）
-    - **video_url**: 视频URL（可选）
-    - **top_k**: 返回结果数量，默认10，最大100
+    - **text**: Text query (optional)
+    - **image_url**: Image URL (optional)
+    - **video_url**: Video URL (optional)
+    - **top_k**: Return result count, default 10, maximum 100
     
-    注意：至少需要提供一种类型的输入
+    Note: At least one type of input is required
     """
     start_time = time.time()
     
     try:
-        logger.info(f"多模态搜索请求: text={bool(request.text)}, image={bool(request.image_url)}, video={bool(request.video_url)}")
+        logger.info(f"Multimodal search request: text={bool(request.text)}, image={bool(request.image_url)}, video={bool(request.video_url)}")
         
-        # 执行搜索
+        # Execute search
         results = await service.search_multimodal(
             text=request.text,
             image_url=request.image_url,
@@ -235,7 +235,7 @@ async def search_multimodal(
             top_k=request.top_k
         )
         
-        # 构建响应
+        # Build response
         search_results = []
         for item in results:
             search_results.append(SearchResultItem(
@@ -249,18 +249,18 @@ async def search_multimodal(
             ))
         
         query_time = time.time() - start_time
-        logger.info(f"多模态搜索完成，耗时: {query_time:.3f}s，结果数: {len(search_results)}")
+        logger.info(f"Multimodal search completed, time: {query_time:.3f}s, result count: {len(search_results)}")
         
         return SearchResponse(
             success=True,
-            message="搜索完成",
+            message="Search completed",
             total=len(search_results),
             results=search_results,
             query_time=query_time
         )
         
     except Exception as e:
-        logger.error(f"多模态搜索失败: {str(e)}")
+        logger.error(f"Multimodal search failed: {str(e)}")
         if not isinstance(e, MMRetrieverException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
@@ -272,20 +272,20 @@ async def insert_data(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    单条数据插入接口
+    Single data insertion interface
     
-    - **text**: 文本内容（可选）
-    - **image_url**: 图像URL（可选）
-    - **video_url**: 视频URL（可选）
+    - **text**: Text content (optional)
+    - **image_url**: Image URL (optional)
+    - **video_url**: Video URL (optional)
     
-    注意：至少需要提供一种类型的内容
+    Note: At least one type of content is required
     """
     start_time = time.time()
     
     try:
-        logger.info(f"数据插入请求: text={bool(request.text)}, image={bool(request.image_url)}, video={bool(request.video_url)}")
+        logger.info(f"Data insertion request: text={bool(request.text)}, image={bool(request.image_url)}, video={bool(request.video_url)}")
         
-        # 执行插入
+        # Execute insertion
         await service.insert_data(
             text=request.text,
             image_url=request.image_url,
@@ -293,17 +293,17 @@ async def insert_data(
         )
         
         processing_time = time.time() - start_time
-        logger.info(f"数据插入完成，耗时: {processing_time:.3f}s")
+        logger.info(f"Data insertion completed, time: {processing_time:.3f}s")
         
         return InsertResponse(
             success=True,
-            message="数据插入成功",
+            message="Data insertion successful",
             inserted_count=1,
             processing_time=processing_time
         )
         
     except Exception as e:
-        logger.error(f"数据插入失败: {str(e)}")
+        logger.error(f"Data insertion failed: {str(e)}")
         if not isinstance(e, MMRetrieverException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
@@ -315,43 +315,43 @@ async def batch_insert_data(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    批量数据插入接口
+    Batch data insertion interface
     
-    - **data_list**: 要插入的数据列表，最多100条
+    - **data_list**: Data list to insert, maximum 100
     """
     start_time = time.time()
     
     try:
-        logger.info(f"批量数据插入请求: {len(request.data_list)} 条数据")
+        logger.info(f"Batch data insertion request: {len(request.data_list)} data")
         
-        # 执行批量插入
+        # Execute batch insertion
         inserted_count = await service.batch_insert_data(request.data_list)
         
         processing_time = time.time() - start_time
-        logger.info(f"批量数据插入完成，耗时: {processing_time:.3f}s，成功插入: {inserted_count} 条")
+        logger.info(f"Batch data insertion completed, time: {processing_time:.3f}s, successfully inserted: {inserted_count} data")
         
         return InsertResponse(
             success=True,
-            message="批量数据插入成功",
+            message="Batch data insertion successful",
             inserted_count=inserted_count,
             processing_time=processing_time
         )
         
     except Exception as e:
-        logger.error(f"批量数据插入失败: {str(e)}")
+        logger.error(f"Batch data insertion failed: {str(e)}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=f"批量数据插入失败: {str(e)}"
+            detail=f"Batch data insertion failed: {str(e)}"
         )
 
 
 @router.get("/health")
 async def health_check():
     """
-    健康检查接口
+    Health check interface
     
-    简单的健康检查，用于负载均衡器和监控系统
+    Simple health check, used for load balancer and monitoring system
     """
     return {
         "status": "healthy",
@@ -363,20 +363,20 @@ async def health_check():
 @router.get("/status")
 async def get_status(service: SearchService = Depends(get_search_service)):
     """
-    获取搜索服务状态
+    Get search service status
     """
     try:
         status = await service.get_status()
         return {
             "success": True,
-            "message": "服务状态正常",
+            "message": "Service status normal",
             "status": status
         }
     except Exception as e:
-        logger.error(f"获取服务状态失败: {str(e)}")
+        logger.error(f"Get service status failed: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"获取服务状态失败: {str(e)}"
+            detail=f"Get service status failed: {str(e)}"
         )
 
 
@@ -386,9 +386,9 @@ async def list_data(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    全量数据分页查询接口
-    - **page**: 页码，从1开始
-    - **page_size**: 每页条数
+    Full data paging query interface
+    - **page**: Page number, starting from 1
+    - **page_size**: Number of items per page
     """
     try:
         result = await service.list_data(page=request.page, page_size=request.page_size)
@@ -404,12 +404,12 @@ async def list_data(
             ))
         return DataListResponse(
             success=True,
-            message="查询成功",
+            message="Query successful",
             total=result['total'],
             items=items,
             page=request.page,
             page_size=request.page_size
         )
     except Exception as e:
-        logger.error(f"全量分页查询失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"全量分页查询失败: {str(e)}") 
+        logger.error(f"Full data paging query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Full data paging query failed: {str(e)}") 

@@ -13,14 +13,14 @@ class ImplType:
 class VLMPluginParam(BasePluginParam):
     param: Union[QwenVLMParam, None] = field(default=None)
 
-# 在装饰器之后重新定义from_dict方法
+# Redefine from_dict method after decorator
 def _vlm_from_dict(cls, config: dict) -> 'VLMPluginParam':
     instance = cls()
     instance.name = config.get('name', '')
     instance.type = config.get('type', '')
     instance.impl = config.get('impl', '')
     
-    # 处理嵌套的param字段
+    # Process nested param field
     if 'param' in config:
         param_config = config['param']
         impl_type = instance.impl.lower()
@@ -31,7 +31,7 @@ def _vlm_from_dict(cls, config: dict) -> 'VLMPluginParam':
     
     return instance
 
-# 覆盖dataclass_json的from_dict方法
+# Override dataclass_json's from_dict method
 VLMPluginParam.from_dict = classmethod(_vlm_from_dict)
 
 _vlm_impls_ = {

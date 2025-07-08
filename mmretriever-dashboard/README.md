@@ -1,86 +1,82 @@
 # MMRetriever Dashboard
 
-MMRetriever 多模态搜索系统的前端管理界面。
+多模态检索系统可视化管理面板
 
-## 功能特性
+MMRetriever Dashboard: A Visual Management Panel for Multimodal Retrieval System
 
-### 文件上传功能
+---
 
-Dashboard 现在支持文件上传功能，用户可以通过以下方式使用：
+## ✨ 主要特性 | Main Features
 
-1. **直接输入URL**：在输入框中直接粘贴文件URL
-2. **上传本地文件**：点击上传按钮选择本地文件进行上传
+- 📊 数据检索与管理 | Data search and management
+- 🖼️ 支持图片/视频/文本多模态展示 | Supports image/video/text multimodal display
+- 🌐 国际化（中英文切换） | Internationalization (Chinese/English switch)
+- ⚡ 实时系统状态监控 | Real-time system status monitoring
+- 🧩 组件化、易扩展 | Component-based, easy to extend
 
-### 支持的文件类型
+---
 
-- **图像文件**：jpg, jpeg, png, gif, bmp, webp
-- **视频文件**：mp4, avi, mov, wmv, flv, webm
-- **音频文件**：mp3, wav, flac, aac
-- **文档文件**：txt, pdf, doc, docx
+## 🚀 安装与启动 | Installation & Startup
 
-### 使用场景
+1. 安装依赖 | Install dependencies
 
-#### 数据管理页面
-- 在"单条插入"标签页中，图像URL和视频URL字段现在支持文件上传
-- 用户可以输入URL或上传本地文件
-- 上传成功后，URL会自动填入输入框
-
-#### 搜索管理页面
-- 在"图像搜索"、"视频搜索"和"多模态搜索"标签页中
-- 图像URL和视频URL字段支持文件上传
-- 用户可以输入URL或上传本地文件进行搜索
-
-## 安装和运行
-
-### 安装依赖
 ```bash
 npm install
+# 或 or
+yarn install
 ```
 
-### 启动开发服务器
+2. 启动开发服务器 | Start development server
+
 ```bash
 npm start
+# 或 or
+yarn start
 ```
 
-### 构建生产版本
-```bash
-npm run build
+3. 访问 | Visit
+
+```
+http://localhost:3000
 ```
 
-## 配置
+---
 
-确保后端API服务器在 `http://localhost:8000` 运行，或者修改 `package.json` 中的 `proxy` 配置。
+## 🛠️ 开发与构建 | Development & Build
 
-## 页面说明
+- 开发环境 | Development: `npm start` / `yarn start`
+- 生产构建 | Production build: `npm run build` / `yarn build`
+- 代码风格 | Code style: TypeScript + React + Ant Design
 
-### 仪表板 (/)
-- 系统概览和统计信息
+---
 
-### 搜索管理 (/search)
-- 文本搜索
-- 图像搜索（支持文件上传）
-- 视频搜索（支持文件上传）
-- 多模态搜索（支持文件上传）
+## 📁 目录结构 | Directory Structure
 
-### 数据管理 (/data)
-- 单条数据插入（支持文件上传）
-- 批量数据插入
+```
+mmretriever-dashboard/
+├── public/                # 静态资源 | Static assets
+├── src/                   # 源码 | Source code
+│   ├── components/        # 通用组件 | Common components
+│   ├── pages/             # 页面 | Pages
+│   ├── services/          # API 服务 | API services
+│   ├── types/             # 类型定义 | Type definitions
+│   ├── locales/           # 国际化资源 | i18n resources
+│   └── ...
+├── package.json           # 项目依赖 | Project dependencies
+├── tsconfig.json          # TypeScript 配置 | TypeScript config
+└── README.md              # 项目说明 | Project readme
+```
 
-### 系统状态 (/status)
-- 系统健康状态
-- 服务组件状态
+---
 
-## 技术栈
+## 🌏 国际化 | Internationalization
 
-- React 18
-- TypeScript
-- Ant Design 5
-- React Router 6
-- Axios
+- 支持中英文切换，所有界面和菜单均可实时切换语言。
+- Supports both Chinese and English. All UI and menus can be switched in real time.
 
-## 注意事项
+---
 
-1. 文件上传大小限制为100MB
-2. 上传的文件会存储到OSS（阿里云对象存储）
-3. 上传成功后会自动生成OSS URL
-4. 支持的文件类型会根据文件扩展名自动识别 
+## 📄 许可证 | License
+
+本项目采用 Apache License 2.0 许可证，详见 LICENSE 文件。
+This project is licensed under the Apache License 2.0. See the LICENSE file for details. 

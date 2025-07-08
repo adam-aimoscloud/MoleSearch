@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadStatus();
-    const interval = setInterval(loadStatus, 30000); // 每30秒刷新一次
+    const interval = setInterval(loadStatus, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
       setStatus(statusData);
       setError(null);
     } catch (err) {
-      setError('无法连接到API服务器');
+      setError('Cannot connect to API server');
       console.error('Status load error:', err);
     } finally {
       setLoading(false);
