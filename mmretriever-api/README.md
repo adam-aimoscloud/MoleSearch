@@ -158,6 +158,17 @@ After starting the service, visit:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
+## 🛠️ TODO
+
+1. **PostgreSQL support for search engine**  
+   Extend the current search engine backend to support PostgreSQL, improving flexibility and scalability for data storage and retrieval.
+
+2. **Add asynchronous data ingestion API**  
+   Provide asynchronous data ingestion API endpoints to enable efficient bulk data writing and improve system throughput.
+
+3. **Support more embedding models in processor**  
+   Continuously integrate and adapt more mainstream embedding models to meet diverse multimodal retrieval requirements.
+
 
 ## 📄 License
 
