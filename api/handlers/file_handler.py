@@ -8,7 +8,7 @@ from typing import Optional
 from fastapi import APIRouter, UploadFile, File, HTTPException
 
 from .models import FileUploadResponse
-from .exceptions import MMRetrieverException, ValidationException
+from .exceptions import MoleRetrieverException, ValidationException
 from utils.oss_uploader import get_oss_uploader
 from utils.logger import get_logger
 
@@ -68,7 +68,7 @@ async def upload_file(
         )
         
         if not upload_result['success']:
-            raise MMRetrieverException(f"File upload failed: {upload_result.get('error', 'Unknown error')}")
+            raise MoleRetrieverException(f"File upload failed: {upload_result.get('error', 'Unknown error')}")
         
         logger.info(f"File upload successful: {upload_result['file_url']}")
         
@@ -85,7 +85,7 @@ async def upload_file(
     except ValidationException as e:
         logger.warning(f"File upload validation failed: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
-    except MMRetrieverException as e:
+    except MoleRetrieverException as e:
         logger.error(f"File upload failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:

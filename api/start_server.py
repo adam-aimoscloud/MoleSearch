@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MMRetriever API server startup script
+MoleRetriever API server startup script
 """
 
 import os
@@ -78,7 +78,7 @@ def start_server(config_manager):
     es_port = es_config.get('port', 9200)
     es_scheme = es_config.get('scheme', 'http')
     
-    print(f"🚀 Starting MMRetriever API server...")
+    print(f"🚀 Starting MoleRetriever API server...")
     print(f"   Address: http://{host}:{port}")
     print(f"   Documentation: http://{host}:{port}/docs")
     print(f"   Log level: {log_level}")
@@ -97,7 +97,7 @@ def start_server(config_manager):
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("MMRetriever API Server")
+    print("MoleRetriever API Server")
     print("Multimodal search system API service")
     print("=" * 60)
     

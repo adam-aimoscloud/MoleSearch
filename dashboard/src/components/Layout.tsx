@@ -60,7 +60,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
         theme="dark"
       >
         <div className="logo">
-          {collapsed ? 'MM' : 'MMRetriever'}
+          {collapsed ? 'MM' : 'MoleRetriever'}
         </div>
         <Menu
           theme="dark"
@@ -80,7 +80,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             fontSize: 18,
             fontWeight: 'bold'
           }}>
-            MMRetriever API Dashboard
+            MoleRetriever API Dashboard
           </div>
           <div style={{ paddingRight: 24 }}>
             <Select

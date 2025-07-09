@@ -1,5 +1,5 @@
 """
-MMRetriever FastAPI Application
+MoleRetriever FastAPI Application
 Multimodal search engine API service
 """
 
@@ -20,18 +20,18 @@ app_state = {}
 async def lifespan(app: FastAPI):
     """Application lifecycle management"""
     # Execute when starting
-    logger.info("MMRetriever API starting...")
+    logger.info("MoleRetriever API starting...")
     
-    logger.info("MMRetriever API started")
+    logger.info("MoleRetriever API started")
     
     yield
     
     # Execute when closing
-    logger.info("MMRetriever API closed")
+    logger.info("MoleRetriever API closed")
 
 # Create FastAPI application
 app = FastAPI(
-    title="MMRetriever API",
+    title="MoleRetriever API",
     description="Multimodal search system API - supports text, image, and video search",
     version="1.0.0",
     docs_url="/docs",
@@ -56,7 +56,7 @@ app.include_router(file_router)
 async def root():
     """Root path health check"""
     return {
-        "message": "MMRetriever API",
+        "message": "MoleRetriever API",
         "version": "1.0.0",
         "status": "running"
     }
@@ -66,7 +66,7 @@ async def health_check():
     """Health check interface"""
     return {
         "status": "healthy",
-        "service": "MMRetriever API"
+        "service": "MoleRetriever API"
     }
 
 if __name__ == "__main__":

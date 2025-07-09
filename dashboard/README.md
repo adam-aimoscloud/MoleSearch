@@ -1,6 +1,6 @@
-# MMRetriever Dashboard
+# MoleRetriever Dashboard
 
-MMRetriever Dashboard: A Visual Management Panel for Multimodal Retrieval System
+MoleRetriever Dashboard: A Visual Management Panel for Multimodal Retrieval System
 
 ---
 

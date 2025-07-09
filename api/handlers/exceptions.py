@@ -4,26 +4,26 @@ Custom exception classes for better error handling and status code mapping
 
 from typing import Optional
 
-class MMRetrieverException(Exception):
+class MoleRetrieverException(Exception):
     """Base exception class"""
     def __init__(self, message: str, details: Optional[str] = None):
         self.message = message
         self.details = details
         super().__init__(self.message)
 
-class ValidationException(MMRetrieverException):
+class ValidationException(MoleRetrieverException):
     """Validation exception - corresponds to 422 status code"""
     pass
 
-class MediaProcessingException(MMRetrieverException):
+class MediaProcessingException(MoleRetrieverException):
     """Media processing exception - corresponds to 422 status code"""
     pass
 
-class ServiceException(MMRetrieverException):
+class ServiceException(MoleRetrieverException):
     """Service exception - corresponds to 500 status code"""
     pass
 
-class NotFoundException(MMRetrieverException):
+class NotFoundException(MoleRetrieverException):
     """Resource not found exception - corresponds to 404 status code"""
     pass
 
