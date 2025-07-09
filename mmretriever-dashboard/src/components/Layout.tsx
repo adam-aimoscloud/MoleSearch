@@ -16,7 +16,7 @@ interface LayoutProps {
 }
 
 const AppLayout: React.FC<LayoutProps> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const {

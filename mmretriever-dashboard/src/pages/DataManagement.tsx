@@ -111,14 +111,6 @@ const DataManagement: React.FC = () => {
     <div>
       <Title level={2}>{t('data_management')}</Title>
       
-      <Alert
-        message={t('insert_data') + t('info')}
-        description={t('insert_data') + t('info')}
-        type="info"
-        showIcon
-        style={{ marginBottom: 16 }}
-      />
-      
       <Tabs defaultActiveKey="single">
         <TabPane 
           tab={

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Card, 
   Tabs, 
@@ -10,13 +10,12 @@ import {
   Space, 
   Tag, 
   message,
-  Spin,
   Alert,
   Pagination
 } from 'antd';
 import { SearchOutlined, FileTextOutlined, PictureOutlined, VideoCameraOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { ApiService } from '../services/api';
-import { SearchResponse, SearchResultItem, DataListResponse, DataListItem } from '../types/api';
+import { SearchResultItem, DataListItem } from '../types/api';
 import FileUploadInput from '../components/FileUploadInput';
 import { useTranslation } from 'react-i18next';
 
@@ -134,7 +133,7 @@ const Search: React.FC = () => {
   };
 
   // Load all data
-  const loadDataList = async (page: number = 1, pageSize: number = 10) => {
+  const loadDataList = useCallback(async (page: number = 1, pageSize: number = 10) => {
     try {
       setDataLoading(true);
       const response = await ApiService.listData({
@@ -158,12 +157,12 @@ const Search: React.FC = () => {
     } finally {
       setDataLoading(false);
     }
-  };
+  }, [t]);
 
   // Load first page data when page loads
   useEffect(() => {
     loadDataList();
-  }, []);
+  }, [loadDataList]);
 
   const renderResultItem = (item: SearchResultItem, index: number) => (
     <List.Item>
@@ -186,7 +185,7 @@ const Search: React.FC = () => {
             <div>
               <Text strong>Image:</Text>
               <div>
-                <img src={item.image_url} alt="Image" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
+                <img src={item.image_url} alt="Search result" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
               </div>
             </div>
           )}
@@ -238,7 +237,7 @@ const Search: React.FC = () => {
             <div>
               <Text strong>Image:</Text>
               <div>
-                <img src={item.image_url} alt="Image" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
+                <img src={item.image_url} alt="Data item" style={{ maxWidth: 160, maxHeight: 120, borderRadius: 4, border: '1px solid #eee' }} />
               </div>
             </div>
           )}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Input, Button, Upload, message, Space } from 'antd';
-import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
-import { ApiService } from '../services/api';
+import { UploadOutlined } from '@ant-design/icons';
 
 interface FileUploadInputProps {
   value?: string;
