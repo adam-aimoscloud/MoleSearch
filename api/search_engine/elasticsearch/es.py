@@ -332,7 +332,7 @@ class ESSearchEngine(BaseSearchEngine):
                 "from": from_index,
                 "size": page_size,
                 "_source": True,
-                "sort": [{"_id": {"order": "desc"}}]  # Sort by ID in descending order, latest data first
+                "sort": [{"_score": {"order": "desc"}}]  # Sort by score in descending order
             }
             
             # Execute search
