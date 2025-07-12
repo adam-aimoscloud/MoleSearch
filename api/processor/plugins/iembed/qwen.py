@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
-import dashscope
 from http import HTTPStatus
 from .base import BaseIEmbed, BaseIEmbedParam
 from ...core import DataIO
+from ...utils.async_dashscope import AsyncDashScope
 
 
 @dataclass_json
@@ -20,14 +20,13 @@ class QwenIEmbed(BaseIEmbed):
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
-        rsp = dashscope.MultiModalEmbedding.call(
+        """异步图像嵌入"""
+        output = await AsyncDashScope.multimodal_embedding(
             model=self.param.model,
-            input=[{'image': input.image}],
+            input_data=[{'image': input.image}],
             api_key=self.param.api_key,
         )
-        if rsp.status_code != HTTPStatus.OK:
-            error_msg = getattr(rsp, 'message', str(rsp))
-            raise Exception(f'QwenIEmbedPlugin forward failed: {error_msg}')
+        
         return DataIO(
-            embeddings=[item['embedding'] for item in rsp.output['embeddings']],
+            embeddings=[item['embedding'] for item in output['embeddings']],
         )

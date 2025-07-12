@@ -35,8 +35,10 @@ vim config.yaml
 
 ## 🚀 Start the Service
 
+### Using Shell Scripts (Recommended)
+
 ```bash
-python start_server.py
+bash start.sh
 ```
 
 ## 📊 API Endpoints

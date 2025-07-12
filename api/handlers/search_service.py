@@ -31,6 +31,10 @@ class SearchService:
         self.mm_extractor = None
         self.search_engine = None
         self.initialized = False
+
+    def __del__(self):
+        if self.search_engine:
+            asyncio.run(self.search_engine.close())
     
     async def initialize(self):
         """Initialize search service"""
@@ -167,7 +171,7 @@ class SearchService:
             )
             
             # Execute search
-            search_result = self.search_engine.search(search_input)
+            search_result = await self.search_engine.search(search_input)
             
             # Convert result format
             results = []
@@ -273,7 +277,7 @@ class SearchService:
             )
             
             # Execute search
-            search_result = self.search_engine.search(search_input)
+            search_result = await self.search_engine.search(search_input)
             
             # Convert result format
             results = []
@@ -343,7 +347,7 @@ class SearchService:
             )
             
             # Execute search
-            search_result = self.search_engine.search(search_input)
+            search_result = await self.search_engine.search(search_input)
             
             # Convert result format
             results = []
@@ -438,7 +442,7 @@ class SearchService:
             )
             
             # Execute insert
-            self.search_engine.insert(insert_data)
+            await self.search_engine.insert(insert_data)
             
             logger.info("Data insertion successful")
             
@@ -546,7 +550,7 @@ class SearchService:
                 try:
                     # Try to execute a simple search to check connection
                     test_search = SearchInput(text='test', embeddings=[], topk=1)
-                    self.search_engine.search(test_search)
+                    await self.search_engine.search(test_search)
                     status['search_engine_connected'] = True
                 except Exception as e:
                     status['search_engine_connected'] = False

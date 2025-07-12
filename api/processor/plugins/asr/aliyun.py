@@ -4,7 +4,7 @@ from http import HTTPStatus
 from .base import BaseASR, BaseASRParam
 from ...core import DataIO
 from ...utils.audio_extractor import AudioExtractor
-from dashscope.audio.asr import Recognition
+from ...utils.async_dashscope import AsyncDashScope
 
 
 @dataclass_json
@@ -26,6 +26,7 @@ class AliyunASR(BaseASR):
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
+        """异步语音识别"""
         try:
             audio_url = AudioExtractor(
                 oss_access_key_id=self.param.oss_access_key_id,
@@ -36,18 +37,17 @@ class AliyunASR(BaseASR):
                 video_url=input.video,
                 audio_prefix=self.param.audio_prefix,
             )
-            recognition = Recognition(model=self.param.model,
-                              format='wav',
-                              sample_rate=16000,
-                              # "language_hints" only support paraformer-realtime-v2 model
-                              language_hints=['zh', 'en'],
-                              callback=None)
-            result = recognition.call(audio_url)
-            if result.status_code != HTTPStatus.OK:
-                print(f'Warning: ASR failed but continuing: {result.text}')
-                return DataIO(text='')  # Return empty text instead of throwing an exception
+            
+            output = await AsyncDashScope.audio_recognition(
+                model=self.param.model,
+                audio_url=audio_url,
+                format='wav',
+                sample_rate=16000,
+                language_hints=['zh', 'en']
+            )
+            
             return DataIO(
-                text=result.output.text if hasattr(result.output, 'text') else '',
+                text=output.text if hasattr(output, 'text') else '',
             )
         except Exception as e:
             # Return empty text when ASR fails, without interrupting the entire process

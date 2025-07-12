@@ -3,10 +3,9 @@ MoleRetriever FastAPI Application
 Multimodal search engine API service
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-import os
 from handlers.search_handler import router as search_router
 from handlers.file_handler import router as file_router
 from utils.logger import get_logger

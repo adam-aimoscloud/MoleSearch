@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
-import dashscope
 from http import HTTPStatus
 from .base import BaseVLM, BaseVLMParam
 from ...core import DataIO
 from ...utils.message_builder import MessageBuilder
+from ...utils.async_dashscope import AsyncDashScope
 
 
 @dataclass_json
@@ -26,20 +26,20 @@ class QwenVLM(BaseVLM):
             return f.read()
 
     async def forward(self, input: DataIO) -> DataIO:
+        """异步视觉语言模型"""
         prompt = self.load_prompt()
         messages = MessageBuilder.build_dashscope_vlm_message(
             image_url=input.image,
             prompt=prompt,
         )
-        rsp = dashscope.MultiModalConversation.call(
+        
+        output = await AsyncDashScope.multimodal_conversation(
             api_key=self.param.api_key,
             model=self.param.model,
             messages=messages,
             stream=False,
         )
-        if rsp.status_code != HTTPStatus.OK:
-            error_msg = getattr(rsp, 'message', str(rsp))
-            raise Exception(f'QwenVLM forward failed: {error_msg}')
+        
         return DataIO(
-            text=rsp.output['choices'][0]['message']['content'][0]['text'],
+            text=output['choices'][0]['message']['content'][0]['text'],
         )

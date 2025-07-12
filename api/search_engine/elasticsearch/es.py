@@ -1,11 +1,18 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from typing import Dict, Any, List
-from elasticsearch import Elasticsearch
+from elasticsearch import AsyncElasticsearch
 from ..base import BaseSearchEngine, SearchEngineParam, SearchEngineType, SearchInput, SearchOutput, InsertData, SearchOutputItem, EmbeddingInfo, ListDataOutput
 import uuid
 import json
 
+
+@dataclass_json
+@dataclass
+class VectorDimensions:
+    text_embedding: int = field(default=1024)
+    image_embedding: int = field(default=1024)
+    video_embedding: int = field(default=1024)
 
 @dataclass_json
 @dataclass
@@ -16,6 +23,11 @@ class ESParam:
     username: str = field(default='')
     password: str = field(default='')
     scheme: str = field(default='http')
+    timeout: int = field(default=30)
+    max_retries: int = field(default=3)
+    vector_dimensions: VectorDimensions = field(default_factory=VectorDimensions)
+    batch_size: int = field(default=100)
+    refresh_policy: str = field(default='wait_for')
 
 
 class ESSearchEngine(BaseSearchEngine):
@@ -32,24 +44,15 @@ class ESSearchEngine(BaseSearchEngine):
         if self.param.username and self.param.password:
             es_config['basic_auth'] = (self.param.username, self.param.password)
         
-        self.es = Elasticsearch(**es_config)
+        self.es = AsyncElasticsearch(**es_config)
         self.index_name = self.param.index
         
         # Get vector dimension configuration from parameters
-        self.vector_dimensions = param.get('vector_dimensions', {
-            'text_embedding': 1024,
-            'image_embedding': 1024,
-            'video_embedding': 1024,
-            'image_text_embedding': 1024,
-            'video_text_embedding': 1024
-        })
-        
-        # Ensure index exists and configure mapping
-        self._ensure_index()
+        self.vector_dimensions = self.param.vector_dimensions
 
-    def _ensure_index(self):
+    async def _ensure_index(self):
         """Ensure index exists and configure correct mapping"""
-        if not self.es.indices.exists(index=self.index_name):
+        if not await self.es.indices.exists(index=self.index_name):
             mapping = {
                 "mappings": {
                     "properties": {
@@ -73,31 +76,31 @@ class ESSearchEngine(BaseSearchEngine):
                         },
                         "text_embedding": {
                             "type": "dense_vector",
-                            "dims": self.vector_dimensions.get('text_embedding', 1024),
+                            "dims": self.vector_dimensions.text_embedding,
                             "index": True,
                             "similarity": "cosine"
                         },
                         "image_embedding": {
                             "type": "dense_vector",
-                            "dims": self.vector_dimensions.get('image_embedding', 1024),
+                            "dims": self.vector_dimensions.image_embedding,
                             "index": True,
                             "similarity": "cosine"
                         },
                         "video_embedding": {
                             "type": "dense_vector",
-                            "dims": self.vector_dimensions.get('video_embedding', 1024),
+                            "dims": self.vector_dimensions.video_embedding,
                             "index": True,
                             "similarity": "cosine"
                         },
                         "image_text_embedding": {
                             "type": "dense_vector",
-                            "dims": self.vector_dimensions.get('image_text_embedding', 1024),
+                            "dims": self.vector_dimensions.text_embedding,
                             "index": True,
                             "similarity": "cosine"
                         },
                         "video_text_embedding": {
                             "type": "dense_vector",
-                            "dims": self.vector_dimensions.get('video_text_embedding', 1024),
+                            "dims": self.vector_dimensions.text_embedding,
                             "index": True,
                             "similarity": "cosine"
                         }
@@ -105,10 +108,12 @@ class ESSearchEngine(BaseSearchEngine):
                 }
             }
             
-            self.es.indices.create(index=self.index_name, **mapping)
+            await self.es.indices.create(index=self.index_name, **mapping)
 
-    def search(self, input: SearchInput) -> SearchOutput:
+    async def search(self, input: SearchInput) -> SearchOutput:
         """Execute search, support text retrieval and vector retrieval mixed retrieval, unified sorting"""
+        await self._ensure_index()
+        
         should_queries = []
         
         # Build multi_match text retrieval (support text/image_text/video_text)
@@ -163,7 +168,7 @@ class ESSearchEngine(BaseSearchEngine):
                 "_source": True
             }
             
-            response = self.es.search(
+            response = await self.es.search(
                 index=self.index_name,
                 **search_body
             )
@@ -188,8 +193,10 @@ class ESSearchEngine(BaseSearchEngine):
             print(f"ES search error: {e}")
             return SearchOutput(items=[])
 
-    def insert(self, data: InsertData) -> None:
+    async def insert(self, data: InsertData) -> None:
         """Insert data into ES"""
+        await self._ensure_index()
+        
         try:
             # Build document
             doc = {
@@ -211,14 +218,14 @@ class ESSearchEngine(BaseSearchEngine):
             doc_id = str(uuid.uuid4())
             
             # Insert document
-            self.es.index(
+            await self.es.index(
                 index=self.index_name,
                 id=doc_id,
                 document=doc
             )
             
             # Refresh index to ensure data is searchable
-            self.es.indices.refresh(index=self.index_name)
+            await self.es.indices.refresh(index=self.index_name)
             
         except Exception as e:
             print(f"ES insert error: {e}")
@@ -241,58 +248,72 @@ class ESSearchEngine(BaseSearchEngine):
             # Default return text embedding field
             return 'text_embedding'
 
-    def batch_insert(self, data_list: List[InsertData]) -> None:
-        """Batch insert data"""
+    async def batch_insert(self, data_list: List[InsertData]) -> None:
+        """Batch insert data with configurable batch size"""
+        await self._ensure_index()
+        
         try:
-            actions = []
-            for data in data_list:
-                doc = {
-                    "text": data.text,
-                    "image": data.image,
-                    "video": data.video,
-                    "image_text": data.image_text,
-                    "video_text": data.video_text
-                }
+            # Process data in batches according to batch_size
+            for i in range(0, len(data_list), self.param.batch_size):
+                batch_data = data_list[i:i + self.param.batch_size]
+                actions = []
                 
-                # Add embedding data
-                for embedding_info in data.embeddings:
-                    if embedding_info.label and embedding_info.embedding:
-                        field_name = self._get_embedding_field(embedding_info.label)
-                        if field_name:
-                            doc[field_name] = embedding_info.embedding
+                for data in batch_data:
+                    doc = {
+                        "text": data.text,
+                        "image": data.image,
+                        "video": data.video,
+                        "image_text": data.image_text,
+                        "video_text": data.video_text
+                    }
+                    
+                    # Add embedding data
+                    for embedding_info in data.embeddings:
+                        if embedding_info.label and embedding_info.embedding:
+                            field_name = self._get_embedding_field(embedding_info.label)
+                            if field_name:
+                                doc[field_name] = embedding_info.embedding
+                    
+                    action = {
+                        "_index": self.index_name,
+                        "_id": str(uuid.uuid4()),
+                        "_source": doc
+                    }
+                    actions.append(action)
                 
-                action = {
-                    "_index": self.index_name,
-                    "_id": str(uuid.uuid4()),
-                    "_source": doc
-                }
-                actions.append(action)
+                # Batch insert current batch
+                from elasticsearch.helpers import async_bulk
+                await async_bulk(
+                    self.es, 
+                    actions,
+                    chunk_size=self.param.batch_size,
+                    refresh=self.param.refresh_policy
+                )
             
-            # Batch insert
-            from elasticsearch.helpers import bulk
-            bulk(self.es, actions)
-            
-            # Refresh index
-            self.es.indices.refresh(index=self.index_name)
+            # Final refresh if not using wait_for policy
+            if self.param.refresh_policy != 'wait_for':
+                await self.es.indices.refresh(index=self.index_name)
             
         except Exception as e:
             print(f"ES batch insert error: {e}")
             raise
 
-    def delete_all(self) -> None:
+    async def delete_all(self) -> None:
         """Delete all data in the index"""
         try:
-            self.es.delete_by_query(
+            await self.es.delete_by_query(
                 index=self.index_name,
                 query={"match_all": {}}
             )
-            self.es.indices.refresh(index=self.index_name)
+            await self.es.indices.refresh(index=self.index_name)
         except Exception as e:
             print(f"ES delete data error: {e}")
             raise
 
-    def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
+    async def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
         """Query all data with paging"""
+        await self._ensure_index()
+        
         try:
             # Calculate paging parameters
             from_index = (page - 1) * page_size
@@ -307,7 +328,7 @@ class ESSearchEngine(BaseSearchEngine):
             }
             
             # Execute search
-            response = self.es.search(
+            response = await self.es.search(
                 index=self.index_name,
                 **search_body
             )
@@ -335,5 +356,9 @@ class ESSearchEngine(BaseSearchEngine):
             print(f"ES query data error: {e}")
             return ListDataOutput(total=0, items=[])
 
+    async def close(self):
+        """Close the ES connection"""
+        await self.es.close()
 
-ESSearchEngine.register_self()
+
+ESSearchEngine.register_self() 

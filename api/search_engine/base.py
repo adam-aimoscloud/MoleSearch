@@ -7,7 +7,7 @@ _impls_ = {}
 
 
 class SearchEngineType:
-    ABSTRACT = 'ABSTRACT'
+    ABSTRACT = 'abstract'
     ES = 'es'
 
 @dataclass_json
@@ -72,17 +72,20 @@ class BaseSearchEngine(object):
     def __init__(self, param: Dict[str, Any]) -> None:
         self.param = param
 
-    def search(self, input: SearchInput) -> SearchOutput:
+    async def search(self, input: SearchInput) -> SearchOutput:
         pass
 
-    def insert(self, data: InsertData) -> None:
+    async def insert(self, data: InsertData) -> None:
         raise NotImplementedError(f'{self.__class__.__name__} does not implement insert method')
     
-    def batch_insert(self, data_list: List[InsertData]) -> None:
+    async def batch_insert(self, data_list: List[InsertData]) -> None:
         raise NotImplementedError(f'{self.__class__.__name__} does not implement batch_insert method')
     
-    def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
+    async def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
         raise NotImplementedError(f'{self.__class__.__name__} does not implement list_data method')
+    
+    async def close(self) -> None:
+        raise NotImplementedError(f'{self.__class__.__name__} does not implement close method')
     
     @classmethod
     def register_self(cls) -> None:

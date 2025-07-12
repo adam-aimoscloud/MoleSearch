@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
-import dashscope
 from http import HTTPStatus
 from .base import BaseVEmbed, BaseVEmbedParam
 from ...core import DataIO
+from ...utils.async_dashscope import AsyncDashScope
 
 
 @dataclass_json
@@ -20,17 +20,16 @@ class QwenVEmbed(BaseVEmbed):
         super().__init__(param)
 
     async def forward(self, input: DataIO) -> DataIO:
+        """异步视频嵌入"""
         try:
-            rsp = dashscope.MultiModalEmbedding.call(
+            output = await AsyncDashScope.multimodal_embedding(
                 model=self.param.model,
-                input=[{'video': input.video}],
+                input_data=[{'video': input.video}],
                 api_key=self.param.api_key,
             )
-            if rsp.status_code != HTTPStatus.OK:
-                error_msg = getattr(rsp, 'message', str(rsp))
-                raise Exception(f'QwenVEmbedPlugin forward failed: {error_msg}')
+            
             return DataIO(
-                embeddings=[item['embedding'] for item in rsp.output['embeddings']],
+                embeddings=[item['embedding'] for item in output['embeddings']],
             )
         except Exception as e:
             # Improve error message, provide more context
