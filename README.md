@@ -45,7 +45,7 @@ MoleSearch/
 ```bash
 cd api
 pip install -r requirements.txt
-python main.py
+bash start.sh
 ```
 
 ### Frontend (Dashboard)
@@ -54,24 +54,6 @@ python main.py
 cd dashboard
 npm install
 npm start
-```
-
-### Elasticsearch
-
-```bash
-# Using Docker
-docker run -d --name elasticsearch \
-  -p 9200:9200 -p 9300:9300 \
-  -e "discovery.type=single-node" \
-  -e "xpack.security.enabled=false" \
-  docker.elastic.co/elasticsearch/elasticsearch:8.12.2
-```
-
-## Testing
-
-```bash
-cd api
-python tests/es_test.py
 ```
 
 ## License
