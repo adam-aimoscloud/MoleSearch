@@ -28,7 +28,7 @@ const Search: React.FC = () => {
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [searchStats, setSearchStats] = useState<{ total: number; queryTime: number } | null>(null);
   
-  // 全量数据状态
+  // all data status
   const [dataList, setDataList] = useState<DataListItem[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [dataPagination, setDataPagination] = useState({

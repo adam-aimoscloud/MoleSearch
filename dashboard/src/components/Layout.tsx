@@ -64,12 +64,12 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: '个人信息',
+      label: 'Profile',
     },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: 'Logout',
       onClick: handleLogout,
     },
   ];

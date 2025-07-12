@@ -12,6 +12,8 @@
   "image_search": "图像搜索",
   "video_search": "视频搜索",
   "multimodal_search": "多模态搜索",
+  "search_management": "搜索管理",
+  "data_management": "数据管理",
   "all_data": "全量数据",
   "insert_data": "插入数据",
   "batch_insert": "批量插入",

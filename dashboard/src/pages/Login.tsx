@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Card, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { ApiService } from '../services/api';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title, Text } = Typography;
 
@@ -14,25 +14,49 @@ interface LoginForm {
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated } = useAuth();
+
+  // If user is authenticated, redirect to home page
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('Login: redirect to home page');
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // debug information
+  useEffect(() => {
+    console.log('Login: page loaded');
+    console.log('Login: current path:', location.pathname);
+    console.log('Login: authentication status:', isAuthenticated);
+    console.log('Login: source path:', location.state?.from?.pathname);
+  }, [location, isAuthenticated]);
 
   const onFinish = async (values: LoginForm) => {
+    console.log('Login: start login process', values.username);
     setLoading(true);
+    
     try {
-      const response = await ApiService.login(values);
+      const success = await login(values.username, values.password);
       
-      if (response.success && response.token) {
-        // Store token in localStorage
-        localStorage.setItem('auth_token', response.token);
-        localStorage.setItem('user_info', JSON.stringify(response.user_info));
+      if (success) {
+        console.log('Login: login successful, redirect to home page');
+        message.success('Login successful!');
         
-        message.success('登录成功！');
-        navigate('/');
+        // use setTimeout to ensure the status is updated before redirecting
+        setTimeout(() => {
+          console.log('Login: redirect to home page');
+          const returnPath = location.state?.from?.pathname || '/';
+          navigate(returnPath, { replace: true });
+        }, 100);
       } else {
-        message.error(response.message || '登录失败');
+        console.log('Login: login failed');
+        message.error('Login failed, please check username and password');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      message.error(error.response?.data?.detail || '登录失败，请检查用户名和密码');
+      console.error('Login: login error:', error);
+      message.error(error.response?.data?.detail || 'Login failed, please check username and password');
     } finally {
       setLoading(false);
     }
@@ -57,7 +81,7 @@ const Login: React.FC = () => {
           <Title level={2} style={{ color: '#1890ff', marginBottom: '8px' }}>
             MoleRetriever
           </Title>
-          <Text type="secondary">多模态搜索系统</Text>
+          <Text type="secondary">Multimodal Search System</Text>
         </div>
 
         <Form
@@ -68,11 +92,11 @@ const Login: React.FC = () => {
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: '请输入用户名！' }]}
+            rules={[{ required: true, message: 'Please enter username!' }]}
           >
             <Input
               prefix={<UserOutlined />}
-              placeholder="用户名"
+              placeholder="Username"
               size="large"
               style={{ borderRadius: '6px' }}
             />
@@ -80,11 +104,11 @@ const Login: React.FC = () => {
 
           <Form.Item
             name="password"
-            rules={[{ required: true, message: '请输入密码！' }]}
+            rules={[{ required: true, message: 'Please enter password!' }]}
           >
             <Input.Password
               prefix={<LockOutlined />}
-              placeholder="密码"
+              placeholder="Password"
               size="large"
               style={{ borderRadius: '6px' }}
             />
@@ -102,16 +126,10 @@ const Login: React.FC = () => {
                 height: '40px'
               }}
             >
-              登录
+              Login
             </Button>
           </Form.Item>
         </Form>
-
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          <Text type="secondary">
-            默认用户: admin/admin123 或 user/user123
-          </Text>
-        </div>
       </Card>
     </div>
   );

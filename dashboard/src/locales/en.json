@@ -12,6 +12,8 @@
   "image_search": "Image Search",
   "video_search": "Video Search",
   "multimodal_search": "Multimodal Search",
+  "search_management": "Search Management",
+  "data_management": "Data Management",
   "all_data": "All Data",
   "insert_data": "Insert Data",
   "batch_insert": "Batch Insert",

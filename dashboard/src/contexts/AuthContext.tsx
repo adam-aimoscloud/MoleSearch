@@ -57,16 +57,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await ApiService.login({ username, password });
       
       if (response.success && response.token && response.user_info) {
+        // update localStorage
+        localStorage.setItem('auth_token', response.token);
+        localStorage.setItem('user_info', JSON.stringify(response.user_info));
+        
+        // then update state
         setToken(response.token);
         setUser(response.user_info);
         setIsAuthenticated(true);
         
-        localStorage.setItem('auth_token', response.token);
-        localStorage.setItem('user_info', JSON.stringify(response.user_info));
-        
+        console.log('Login successful:', response.user_info.username);
         return true;
+      } else {
+        console.error('Login failed:', response.message);
+        return false;
       }
-      return false;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -74,14 +79,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    // first clear localStorage
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_info');
+    
+    // then update state
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
     
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_info');
-    
-    // Call logout API
+    // call logout API
     ApiService.logout().catch(console.error);
   };
 
