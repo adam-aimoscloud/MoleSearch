@@ -11,6 +11,7 @@ from ...utils.async_dashscope import AsyncDashScope
 class QwenVEmbedParam(BaseVEmbedParam):
     api_key: str = field(default='')
     model: str = field(default='multimodal-embedding-v1')
+    dimension: int = field(default=1024)
 
 
 @dataclass_json
@@ -26,6 +27,7 @@ class QwenVEmbed(BaseVEmbed):
                 model=self.param.model,
                 input_data=[{'video': input.video}],
                 api_key=self.param.api_key,
+                dimension=self.param.dimension,
             )
             
             return DataIO(

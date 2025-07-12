@@ -19,13 +19,15 @@ server:
   docs_url: "/docs"
   redoc_url: "/redoc"
 
-# API key and credential configuration
-credentials:
-  oss:
-    access_key_id: "your_oss_access_key_id_here"
-    access_key_secret: "your_oss_access_key_secret_here"
-    endpoint: "oss-cn-hangzhou.aliyuncs.com"
-    bucket_name: "mmretriever-audio"
+# File handler configuration
+file_handler:
+  # API key and credential configuration
+  credentials:
+    oss:
+      access_key_id: "your_oss_access_key_id_here"
+      access_key_secret: "your_oss_access_key_secret_here"
+      endpoint: "oss-cn-hangzhou.aliyuncs.com"
+      bucket_name: "mmretriever-audio"
 
 # MMExtractor configuration
 mmextractor:
@@ -120,14 +122,14 @@ search_engine:
 validation:
   # Verify required configuration items
   required_fields:
-    - "credentials.dashscope_api_key"
-    - "credentials.oss.access_key_id"
-    - "credentials.oss.access_key_secret"
+    - "file_handler.credentials.oss.access_key_id"
+    - "file_handler.credentials.oss.access_key_secret"
   
   # Verify configuration item format
   format_validation:
     dashscope_api_key_min_length: 20
     oss_endpoint_pattern: "^oss-.*\\.aliyuncs\\.com$"
+    token_min_length: 10
 
 # Performance configuration
 performance:
@@ -145,6 +147,23 @@ performance:
 
 # Security configuration
 security:
+  # User authentication configuration
+  user_auth:
+    enable: true
+    users:
+      - username: "admin"
+        password: "admin123"
+        role: "admin"
+      - username: "user"
+        password: "user123"
+        role: "user"
+    # Redis configuration for token storage
+    redis:
+      host: "localhost"
+      port: 6379
+      db: 0
+      password: null
+      decode_responses: true
   # API key configuration (optional)
   api_key_required: false
   api_key_header: "X-API-Key"

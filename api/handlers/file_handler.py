@@ -5,9 +5,10 @@ Only keep the file upload interface
 
 import os
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 
 from .models import FileUploadResponse
+from .auth import get_current_token
 from .exceptions import MoleRetrieverException, ValidationException
 from utils.oss_uploader import get_oss_uploader
 from utils.logger import get_logger
@@ -19,7 +20,8 @@ router = APIRouter(prefix="/api/v1/files", tags=["File Management"])
 @router.post("/upload", response_model=FileUploadResponse)
 async def upload_file(
     file: UploadFile = File(..., description="The file to upload"),
-    file_type: Optional[str] = None
+    file_type: Optional[str] = None,
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Upload file to OSS

@@ -224,7 +224,7 @@ class SearchService:
             )
             
             # Execute search
-            search_result = self.search_engine.search(search_input)
+            search_result = await self.search_engine.search(search_input)
             
             # Convert result format
             results = []
@@ -527,7 +527,7 @@ class SearchService:
                 insert_data_list.append(insert_data)
             
             # Execute batch insert
-            self.search_engine.batch_insert(insert_data_list)
+            await self.search_engine.batch_insert(insert_data_list)
             
             logger.info(f"Batch insert completed, total {len(insert_data_list)} data")
             return len(insert_data_list)
@@ -568,7 +568,7 @@ class SearchService:
             await self.initialize()
         try:
             # Get data through search engine interface
-            result = self.search_engine.list_data(page=page, page_size=page_size)
+            result = await self.search_engine.list_data(page=page, page_size=page_size)
             
             # Convert result format
             items = []

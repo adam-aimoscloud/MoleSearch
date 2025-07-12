@@ -198,6 +198,10 @@ class ConfigManager:
         """Get monitoring configuration"""
         return self.get_config('monitoring', {})
     
+    def get_file_handler_config(self) -> Dict[str, Any]:
+        """Get file handler configuration"""
+        return self.get_config('file_handler', {})
+    
     def reload_config(self):
         """Reload configuration"""
         self._load_config()

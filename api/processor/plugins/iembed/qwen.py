@@ -11,6 +11,7 @@ from ...utils.async_dashscope import AsyncDashScope
 class QwenIEmbedParam(BaseIEmbedParam):
     api_key: str = field(default='')
     model: str = field(default='multimodal-embedding-v1')
+    dimension: int = field(default=1024)
 
 
 @dataclass_json
@@ -25,6 +26,7 @@ class QwenIEmbed(BaseIEmbed):
             model=self.param.model,
             input_data=[{'image': input.image}],
             api_key=self.param.api_key,
+            dimension=self.param.dimension,
         )
         
         return DataIO(

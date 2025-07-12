@@ -21,7 +21,7 @@ class OSSUploader:
     def __init__(self):
         """Initialize OSS uploader"""
         config_manager = get_config_manager()
-        credentials = config_manager.get_config('credentials.oss', {})
+        credentials = config_manager.get_config('file_handler.credentials.oss', {})
         
         self.access_key_id = credentials.get('access_key_id', '')
         self.access_key_secret = credentials.get('access_key_secret', '')
@@ -29,7 +29,7 @@ class OSSUploader:
         self.bucket_name = credentials.get('bucket_name', '')
         
         if not all([self.access_key_id, self.access_key_secret, self.endpoint, self.bucket_name]):
-            raise ValueError("OSS configuration is incomplete, please check credentials.oss configuration")
+            raise ValueError("OSS configuration is incomplete, please check file_handler.credentials.oss configuration")
         
         # Initialize OSS client
         self.auth = oss2.Auth(self.access_key_id, self.access_key_secret)

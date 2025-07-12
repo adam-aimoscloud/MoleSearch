@@ -14,6 +14,7 @@ from .models import (
     DataListRequest, DataListResponse, DataListItem
 )
 from .search_service import SearchService
+from .auth import get_current_token
 from .exceptions import (
     MoleRetrieverException, ValidationException, MediaProcessingException,
     ServiceException, NotFoundException, InvalidMediaFormatException,
@@ -58,7 +59,8 @@ async def get_search_service():
 @router.post("/search/text", response_model=SearchResponse)
 async def search_text(
     request: TextSearchRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Text search interface
@@ -110,7 +112,8 @@ async def search_text(
 @router.post("/search/image", response_model=SearchResponse)
 async def search_image(
     request: ImageSearchRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Image search interface
@@ -160,7 +163,8 @@ async def search_image(
 @router.post("/search/video", response_model=SearchResponse)
 async def search_video(
     request: VideoSearchRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Video search interface
@@ -210,7 +214,8 @@ async def search_video(
 @router.post("/search/multimodal", response_model=SearchResponse)
 async def search_multimodal(
     request: MultimodalSearchRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Multimodal search interface
@@ -269,7 +274,8 @@ async def search_multimodal(
 @router.post("/data/insert", response_model=InsertResponse)
 async def insert_data(
     request: InsertDataRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Single data insertion interface
@@ -312,7 +318,8 @@ async def insert_data(
 @router.post("/data/batch_insert", response_model=InsertResponse)
 async def batch_insert_data(
     request: BatchInsertRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Batch data insertion interface
@@ -361,7 +368,10 @@ async def health_check():
 
 
 @router.get("/status")
-async def get_status(service: SearchService = Depends(get_search_service)):
+async def get_status(
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
+):
     """
     Get search service status
     """
@@ -383,7 +393,8 @@ async def get_status(service: SearchService = Depends(get_search_service)):
 @router.post("/data/list", response_model=DataListResponse)
 async def list_data(
     request: DataListRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    token: Optional[str] = Depends(get_current_token)
 ):
     """
     Full data paging query interface

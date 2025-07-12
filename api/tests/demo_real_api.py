@@ -112,7 +112,7 @@ async def demo_video_processing():
     extractor = MMExtractor(pipeline_param)
     
     # Test video URL
-    test_video = "https://dashscope.oss-cn-beijing.aliyuncs.com/videos/video_understanding.mp4"
+    test_video = "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20250107/lbcemt/new+video.mp4"
     
     print(f"Input video: {test_video}")
     
@@ -154,7 +154,7 @@ async def demo_multimodal_processing():
     # Test data
     test_text = "This is a test case with multiple modalities"
     test_image = "https://dashscope.oss-cn-beijing.aliyuncs.com/images/dog_and_girl.jpeg"
-    test_video = "https://dashscope.oss-cn-beijing.aliyuncs.com/videos/video_understanding.mp4"
+    test_video = "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20250107/lbcemt/new+video.mp4"
     
     print(f"Input text: {test_text}")
     print(f"Input image: {test_image}")

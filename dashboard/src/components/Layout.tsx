@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Layout, Menu, theme, Select } from 'antd';
+import { Layout, Menu, theme, Select, Dropdown, Button, Space, Avatar } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   SearchOutlined,
   DatabaseOutlined,
   SettingOutlined,
+  UserOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -23,6 +26,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const { i18n, t } = useTranslation();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     {
@@ -50,6 +54,25 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key);
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: '个人信息',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '退出登录',
+      onClick: handleLogout,
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -83,15 +106,32 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             MoleRetriever API Dashboard
           </div>
           <div style={{ paddingRight: 24 }}>
-            <Select
-              value={i18n.language}
-              onChange={lng => i18n.changeLanguage(lng)}
-              style={{ width: 100 }}
-              options={[
-                { value: 'zh', label: '中文' },
-                { value: 'en', label: 'English' }
-              ]}
-            />
+            <Space>
+              <Select
+                value={i18n.language}
+                onChange={lng => i18n.changeLanguage(lng)}
+                style={{ width: 100 }}
+                options={[
+                  { value: 'zh', label: '中文' },
+                  { value: 'en', label: 'English' }
+                ]}
+              />
+              {user && (
+                <Dropdown
+                  menu={{
+                    items: userMenuItems,
+                  }}
+                  placement="bottomRight"
+                >
+                  <Button type="text" style={{ color: 'inherit' }}>
+                    <Space>
+                      <Avatar size="small" icon={<UserOutlined />} />
+                      <span>{user.username}</span>
+                    </Space>
+                  </Button>
+                </Dropdown>
+              )}
+            </Space>
           </div>
         </Header>
         <Content

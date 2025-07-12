@@ -11,7 +11,9 @@ import {
   InsertDataRequest,
   BatchInsertRequest,
   DataListRequest,
-  DataListResponse
+  DataListResponse,
+  LoginRequest,
+  LoginResponse
 } from '../types/api';
 
 // Create axios instance
@@ -23,9 +25,13 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
+// Add token to requests if available
 api.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     console.log('API Request:', config.method?.toUpperCase(), config.url);
     return config;
   },
@@ -42,12 +48,38 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('API Error:', error.response?.status, error.response?.data);
+    
+    // Handle 401 errors (unauthorized)
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_info');
+      window.location.href = '/login';
+    }
+    
     return Promise.reject(error);
   }
 );
 
+
+
 // API service class
 export class ApiService {
+  // Authentication
+  static async login(request: LoginRequest): Promise<LoginResponse> {
+    const response = await api.post('/auth/login', request);
+    return response.data;
+  }
+
+  static async logout(): Promise<any> {
+    const response = await api.post('/auth/logout');
+    return response.data;
+  }
+
+  static async getCurrentUser(): Promise<any> {
+    const response = await api.get('/auth/me');
+    return response.data;
+  }
+
   // Health check
   static async getHealth(): Promise<HealthResponse> {
     const response = await api.get('/health');

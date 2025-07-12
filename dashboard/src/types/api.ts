@@ -116,4 +116,26 @@ export interface StatusResponse {
 export interface HealthResponse {
   status: string;
   timestamp: string;
+}
+
+// Authentication types
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user_info?: {
+    username: string;
+    role: string;
+    login_time: string;
+  };
+}
+
+export interface UserInfo {
+  username: string;
+  role: string;
 } 

@@ -11,6 +11,7 @@ from ...utils.async_dashscope import AsyncDashScope
 class QwenTEmbedParam(BaseTEmbedParam):
     api_key: str = field(default='')
     model: str = field(default='text-embedding-v4')
+    dimension: int = field(default=1024)
 
 
 @dataclass_json
@@ -25,6 +26,7 @@ class QwenTEmbed(BaseTEmbed):
             model=self.param.model,
             input_text=input.text,
             api_key=self.param.api_key,
+            dimension=self.param.dimension,
         )
         
         return DataIO(

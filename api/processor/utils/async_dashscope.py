@@ -11,7 +11,8 @@ class AsyncDashScope:
     async def text_embedding(
         model: str,
         input_text: str,
-        api_key: str
+        api_key: str,
+        dimension: int = 1024
     ) -> Dict[str, Any]:
         """Async text embedding - use thread pool to wrap sync interface"""
         def _sync_call():
@@ -19,6 +20,7 @@ class AsyncDashScope:
                 model=model,
                 input=input_text,
                 api_key=api_key,
+                dimension=dimension,
             )
         
         rsp = await asyncio.to_thread(_sync_call)
@@ -33,7 +35,8 @@ class AsyncDashScope:
     async def multimodal_embedding(
         model: str,
         input_data: List[Dict[str, Any]],
-        api_key: str
+        api_key: str,
+        dimension: int = 1024
     ) -> Dict[str, Any]:
         """Async multimodal embedding - use thread pool to wrap sync interface"""
         def _sync_call():
@@ -41,6 +44,7 @@ class AsyncDashScope:
                 model=model,
                 input=input_data,
                 api_key=api_key,
+                dimension=dimension,
             )
         
         rsp = await asyncio.to_thread(_sync_call)
@@ -129,7 +133,8 @@ class AsyncDashScope:
     async def batch_text_embedding(
         model: str,
         input_texts: List[str],
-        api_key: str
+        api_key: str,
+        dimension: int = 1024
     ) -> Dict[str, Any]:
         """Async batch text embedding - use thread pool to wrap sync interface"""
         def _sync_call():
@@ -137,6 +142,7 @@ class AsyncDashScope:
                 model=model,
                 input=input_texts,
                 api_key=api_key,
+                dimension=dimension,
             )
         
         rsp = await asyncio.to_thread(_sync_call)
