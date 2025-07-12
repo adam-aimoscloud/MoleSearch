@@ -17,8 +17,7 @@ import {
   ExclamationCircleOutlined,
   ReloadOutlined,
   DatabaseOutlined,
-  SearchOutlined,
-  SettingOutlined
+  SearchOutlined
 } from '@ant-design/icons';
 import { ApiService } from '../services/api';
 import { StatusResponse, HealthResponse } from '../types/api';
