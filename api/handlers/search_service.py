@@ -14,7 +14,7 @@ from search_engine.base import SearchEngineFactory, SearchEngineParam, SearchInp
 from search_engine.elasticsearch.es import ESSearchEngine
 from .models import InsertDataRequest
 from .exceptions import (
-    MoleRetrieverException, ValidationException, MediaProcessingException,
+    MoleSearchException, ValidationException, MediaProcessingException,
     ServiceException, NotFoundException, InvalidMediaFormatException,
     MediaDownloadException
 )

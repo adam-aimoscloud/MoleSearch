@@ -79,7 +79,7 @@ const Login: React.FC = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Title level={2} style={{ color: '#1890ff', marginBottom: '8px' }}>
-            MoleRetriever
+            MoleSearch
           </Title>
           <Text type="secondary">Multimodal Search System</Text>
         </div>

@@ -8,6 +8,7 @@ import {
   SettingOutlined,
   UserOutlined,
   LogoutOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
@@ -49,6 +50,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
       icon: <SettingOutlined />,
       label: t('status'),
     },
+
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -83,7 +85,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
         theme="dark"
       >
         <div className="logo">
-          {collapsed ? 'MM' : 'MoleRetriever'}
+          {collapsed ? 'MM' : 'MoleSearch'}
         </div>
         <Menu
           theme="dark"
@@ -103,7 +105,7 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             fontSize: 18,
             fontWeight: 'bold'
           }}>
-            MoleRetriever API Dashboard
+            MoleSearch API Dashboard
           </div>
           <div style={{ paddingRight: 24 }}>
             <Space>

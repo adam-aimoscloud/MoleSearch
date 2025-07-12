@@ -1,4 +1,4 @@
-# MoleRetriever API
+# MoleSearch API
 
 A FastAPI interface for multimodal retrieval, supporting search and data insertion for text, images, and videos.
 

@@ -9,7 +9,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 
 from .models import FileUploadResponse
 from .auth import get_current_token
-from .exceptions import MoleRetrieverException, ValidationException
+from .exceptions import MoleSearchException, ValidationException
 from utils.oss_uploader import get_oss_uploader
 from utils.logger import get_logger
 
@@ -70,7 +70,7 @@ async def upload_file(
         )
         
         if not upload_result['success']:
-            raise MoleRetrieverException(f"File upload failed: {upload_result.get('error', 'Unknown error')}")
+            raise MoleSearchException(f"File upload failed: {upload_result.get('error', 'Unknown error')}")
         
         logger.info(f"File upload successful: {upload_result['file_url']}")
         
@@ -87,7 +87,7 @@ async def upload_file(
     except ValidationException as e:
         logger.warning(f"File upload validation failed: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
-    except MoleRetrieverException as e:
+    except MoleSearchException as e:
         logger.error(f"File upload failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:

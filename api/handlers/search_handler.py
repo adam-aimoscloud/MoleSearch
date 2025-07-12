@@ -16,7 +16,7 @@ from .models import (
 from .search_service import SearchService
 from .auth import get_current_token
 from .exceptions import (
-    MoleRetrieverException, ValidationException, MediaProcessingException,
+    MoleSearchException, ValidationException, MediaProcessingException,
     ServiceException, NotFoundException, InvalidMediaFormatException,
     MediaDownloadException
 )
@@ -155,7 +155,7 @@ async def search_image(
         
     except Exception as e:
         logger.error(f"Image search failed: {str(e)}")
-        if not isinstance(e, MoleRetrieverException):
+        if not isinstance(e, MoleSearchException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
 
@@ -206,7 +206,7 @@ async def search_video(
         
     except Exception as e:
         logger.error(f"Video search failed: {str(e)}")
-        if not isinstance(e, MoleRetrieverException):
+        if not isinstance(e, MoleSearchException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
 
@@ -266,7 +266,7 @@ async def search_multimodal(
         
     except Exception as e:
         logger.error(f"Multimodal search failed: {str(e)}")
-        if not isinstance(e, MoleRetrieverException):
+        if not isinstance(e, MoleSearchException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
 
@@ -310,7 +310,7 @@ async def insert_data(
         
     except Exception as e:
         logger.error(f"Data insertion failed: {str(e)}")
-        if not isinstance(e, MoleRetrieverException):
+        if not isinstance(e, MoleSearchException):
             logger.error(traceback.format_exc())
         raise handle_service_exception(e)
 
@@ -362,7 +362,7 @@ async def health_check():
     """
     return {
         "status": "healthy",
-        "service": "MoleRetriever Search Service",
+        "service": "MoleSearch Search Service",
         "version": "1.0.0"
     }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gunicorn configuration file for MoleRetriever API
+Gunicorn configuration file for MoleSearch API
 """
 
 import multiprocessing
@@ -64,15 +64,15 @@ certfile = None
 # Server hooks
 def on_starting(server):
     """Called just after the server is started."""
-    server.log.info("MoleRetriever API server starting...")
+    server.log.info("MoleSearch API server starting...")
 
 def on_reload(server):
     """Called to reload the server configuration."""
-    server.log.info("MoleRetriever API server reloading...")
+    server.log.info("MoleSearch API server reloading...")
 
 def when_ready(server):
     """Called just after the server is started and the workers have been spawned."""
-    server.log.info("MoleRetriever API server is ready to accept connections")
+    server.log.info("MoleSearch API server is ready to accept connections")
 
 def worker_int(worker):
     """Called when a worker receives SIGINT or SIGQUIT."""
@@ -100,4 +100,4 @@ def pre_exec(server):
 
 def on_exit(server):
     """Called just after exiting the server."""
-    server.log.info("MoleRetriever API server exiting...") 
+    server.log.info("MoleSearch API server exiting...") 
