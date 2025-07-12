@@ -4,8 +4,8 @@ FROM python:3.9-slim
 #FROM dockerpull.cn/library/python:3.9-slim
 
 # In China, use apt source - fix for newer Debian systems
-#RUN find /etc/apt/ -name "*.list" -exec sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' {} \;
-#RUN find /etc/apt/ -name "*.list" -exec sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' {} \;
+#RUN find /etc/apt/ -name "*.sources" -exec sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' {} \;
+#RUN find /etc/apt/ -name "*.sources" -exec sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' {} \;
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
