@@ -1,17 +1,11 @@
 FROM python:3.9-slim
 
 # In China, use this
-# FROM dockerpull.cn/library/python:3.9-slim
+#FROM dockerpull.cn/library/python:3.9-slim
 
 # In China, use apt source - fix for newer Debian systems
-#RUN if [ -f /etc/apt/sources.list ]; then \
-#        sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list; \
-#        sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list; \
-#    else \
-#        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main" > /etc/apt/sources.list; \
-#        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main" >> /etc/apt/sources.list; \
-#        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security/ bookworm-security main" >> /etc/apt/sources.list; \
-#    fi
+#RUN find /etc/apt/ -name "*.list" -exec sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' {} \;
+#RUN find /etc/apt/ -name "*.list" -exec sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' {} \;
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
