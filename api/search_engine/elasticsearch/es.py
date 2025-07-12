@@ -38,7 +38,12 @@ class ESSearchEngine(BaseSearchEngine):
         
         # Build ES connection
         es_config = {
-            'hosts': [f"{self.param.scheme}://{self.param.host}:{self.param.port}"]
+            'hosts': [f"{self.param.scheme}://{self.param.host}:{self.param.port}"],
+            'max_retries': self.param.max_retries,
+            'retry_on_timeout': True,
+            'request_timeout': self.param.timeout,
+            'connections_per_node': 1,
+            'verify_certs': False
         }
         
         if self.param.username and self.param.password:
@@ -301,14 +306,17 @@ class ESSearchEngine(BaseSearchEngine):
     async def delete_all(self) -> None:
         """Delete all data in the index"""
         try:
-            await self.es.delete_by_query(
-                index=self.index_name,
-                query={"match_all": {}}
-            )
-            await self.es.indices.refresh(index=self.index_name)
+            # Check if index exists first
+            if await self.es.indices.exists(index=self.index_name):
+                await self.es.delete_by_query(
+                    index=self.index_name,
+                    query={"match_all": {}}
+                )
+                await self.es.indices.refresh(index=self.index_name)
         except Exception as e:
+            # Don't raise exception for delete_all, just log it
             print(f"ES delete data error: {e}")
-            raise
+            # Continue execution even if delete fails
 
     async def list_data(self, page: int = 1, page_size: int = 20) -> ListDataOutput:
         """Query all data with paging"""
