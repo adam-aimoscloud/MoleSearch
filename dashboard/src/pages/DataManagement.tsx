@@ -18,7 +18,8 @@ import {
   UploadOutlined, 
   FileTextOutlined, 
   PictureOutlined, 
-  VideoCameraOutlined 
+  VideoCameraOutlined,
+  ClearOutlined
 } from '@ant-design/icons';
 import { ApiService } from '../services/api';
 import { InsertDataRequest } from '../types/api';
@@ -33,6 +34,7 @@ const DataManagement: React.FC = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [insertStats, setInsertStats] = useState<{ count: number; time: number } | null>(null);
+  const [singleInsertForm] = Form.useForm();
 
   const handleSingleInsert = async (values: InsertDataRequest) => {
     try {
@@ -122,7 +124,7 @@ const DataManagement: React.FC = () => {
           key="single"
         >
           <Card title={t('single_insert')}>
-            <Form onFinish={handleSingleInsert} layout="vertical">
+            <Form form={singleInsertForm} onFinish={handleSingleInsert} layout="vertical">
               <Row gutter={16}>
                 <Col span={24}>
                   <Form.Item
@@ -178,14 +180,25 @@ const DataManagement: React.FC = () => {
               </Row>
               
               <Form.Item>
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
-                  loading={loading}
-                  icon={<PlusOutlined />}
-                >
-                  {t('insert_data')}
-                </Button>
+                <Space>
+                  <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    loading={loading}
+                    icon={<PlusOutlined />}
+                  >
+                    {t('insert_data')}
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      singleInsertForm.resetFields();
+                      message.success(t('form_cleared'));
+                    }}
+                    icon={<ClearOutlined />}
+                  >
+                    {t('clear_form')}
+                  </Button>
+                </Space>
               </Form.Item>
             </Form>
           </Card>

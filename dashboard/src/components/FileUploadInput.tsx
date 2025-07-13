@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input, Button, Upload, message, Space } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import { apiConfig } from '../config/api';
 
 interface FileUploadInputProps {
   value?: string;
@@ -25,14 +26,28 @@ const FileUploadInput: React.FC<FileUploadInputProps> = ({
     try {
       setUploading(true);
       
+      // Check file size for video files (10MB limit)
+      if (fileType === 'video' && file.size > 10 * 1024 * 1024) {
+        message.error('Video file size must be less than 10MB');
+        setUploading(false);
+        return;
+      }
+      
       const formData = new FormData();
       formData.append('file', file);
       if (fileType) {
         formData.append('file_type', fileType);
       }
 
-      const response = await fetch('/api/v1/files/upload', {
+      const token = localStorage.getItem('auth_token');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/files/upload`, {
         method: 'POST',
+        headers,
         body: formData,
       });
 

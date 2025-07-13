@@ -15,7 +15,7 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/api/v1/files", tags=["File Management"])
+router = APIRouter(prefix="/files", tags=["File Management"])
 
 @router.post("/upload", response_model=FileUploadResponse)
 async def upload_file(
@@ -44,9 +44,6 @@ async def upload_file(
         if len(file_content) > max_file_size:
             raise ValidationException(f"File size exceeds limit: {len(file_content)} > {max_file_size}")
         
-        # Get OSS uploader
-        uploader = get_oss_uploader()
-        
         # Determine file type
         if not file_type:
             # Automatically classify by file extension
@@ -62,12 +59,19 @@ async def upload_file(
             else:
                 file_type = "file"
         
-        # Upload file to OSS
-        upload_result = uploader.upload_file_content(
-            file_content=file_content,
-            file_name=file.filename,
-            file_type=file_type
-        )
+        # Try OSS upload first, fallback to local storage
+        upload_result = None
+        try:
+            uploader = get_oss_uploader()
+            upload_result = uploader.upload_file_content(
+                file_content=file_content,
+                file_name=file.filename,
+                file_type=file_type
+            )
+        except Exception as e:
+            logger.warning(f"OSS upload failed, using local storage: {str(e)}")
+            # Fallback to local storage
+            upload_result = _save_file_locally(file_content, file.filename, file_type)
         
         if not upload_result['success']:
             raise MoleSearchException(f"File upload failed: {upload_result.get('error', 'Unknown error')}")
@@ -92,4 +96,43 @@ async def upload_file(
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         logger.error(f"File upload exception: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"File upload service exception: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"File upload service exception: {str(e)}")
+
+def _save_file_locally(file_content: bytes, file_name: str, file_type: str) -> dict:
+    """Save file locally as fallback when OSS is not available"""
+    try:
+        # Create uploads directory if it doesn't exist
+        uploads_dir = "uploads"
+        if not os.path.exists(uploads_dir):
+            os.makedirs(uploads_dir)
+        
+        # Generate unique filename
+        timestamp = str(int(datetime.now().timestamp()))
+        unique_id = str(uuid.uuid4())
+        file_extension = os.path.splitext(file_name)[1]
+        local_filename = f"{timestamp}_{unique_id}{file_extension}"
+        
+        # Save file
+        file_path = os.path.join(uploads_dir, local_filename)
+        with open(file_path, 'wb') as f:
+            f.write(file_content)
+        
+        # Generate file URL (relative path for local development)
+        file_url = f"/uploads/{local_filename}"
+        
+        return {
+            'success': True,
+            'file_url': file_url,
+            'oss_path': file_path,
+            'file_size': len(file_content),
+            'file_extension': file_extension,
+            'upload_time': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Local file save failed: {str(e)}")
+        return {
+            'success': False,
+            'error': str(e),
+            'file_name': file_name
+        } 

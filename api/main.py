@@ -5,6 +5,7 @@ Multimodal search engine API service
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from handlers.search_handler import router as search_router
 from handlers.file_handler import router as file_router
@@ -65,7 +66,13 @@ app.add_middleware(
 # Register routes
 app.include_router(auth_router)
 app.include_router(search_router, prefix="/api/v1", tags=["search"])
-app.include_router(file_router)
+app.include_router(file_router, prefix="/api/v1", tags=["files"])
+
+# Mount static files for uploaded files
+try:
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+except Exception as e:
+    logger.warning(f"Could not mount uploads directory: {e}")
 
 @app.get("/")
 async def root():

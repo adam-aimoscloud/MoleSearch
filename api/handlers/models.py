@@ -116,7 +116,7 @@ class FileUploadResponse(BaseModel):
     oss_path: str = Field("", description="OSS storage path")
     file_size: int = Field(0, description="File size in bytes")
     file_extension: str = Field("", description="File extension")
-    upload_time: float = Field(0.0, description="Upload time")
+    upload_time: str = Field("", description="Upload time (ISO format)")
 
 # Status and health models
 class StatusResponse(BaseModel):
