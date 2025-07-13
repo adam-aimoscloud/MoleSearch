@@ -14,7 +14,12 @@ import {
   DataListRequest,
   DataListResponse,
   LoginRequest,
-  LoginResponse
+  LoginResponse,
+  AsyncInsertDataRequest,
+  AsyncBatchInsertRequest,
+  AsyncTaskResponse,
+  TaskStatusResponse,
+  TaskListResponse
 } from '../types/api';
 
 // Create axios instance with configuration
@@ -125,6 +130,30 @@ export class ApiService {
   // Batch insert data
   static async batchInsertData(request: BatchInsertRequest): Promise<InsertResponse> {
     const response = await api.post(API_ENDPOINTS.BATCH_INSERT, request);
+    return response.data;
+  }
+
+  // Async insert single data
+  static async asyncInsertData(request: AsyncInsertDataRequest): Promise<AsyncTaskResponse> {
+    const response = await api.post(API_ENDPOINTS.ASYNC_INSERT_DATA, request);
+    return response.data;
+  }
+
+  // Async batch insert data
+  static async asyncBatchInsertData(request: AsyncBatchInsertRequest): Promise<AsyncTaskResponse> {
+    const response = await api.post(API_ENDPOINTS.ASYNC_BATCH_INSERT, request);
+    return response.data;
+  }
+
+  // Get task status
+  static async getTaskStatus(taskId: string): Promise<TaskStatusResponse> {
+    const response = await api.get(`${API_ENDPOINTS.TASK_STATUS}/${taskId}/status`);
+    return response.data;
+  }
+
+  // Get pending tasks
+  static async getPendingTasks(): Promise<TaskListResponse> {
+    const response = await api.get(API_ENDPOINTS.PENDING_TASKS);
     return response.data;
   }
 

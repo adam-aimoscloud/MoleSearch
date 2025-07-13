@@ -47,6 +47,12 @@ export const API_ENDPOINTS = {
   INSERT_DATA: '/data/insert',
   BATCH_INSERT: '/data/batch_insert',
   LIST_DATA: '/data/list',
+  
+  // Async Data Management
+  ASYNC_INSERT_DATA: '/data/async_insert',
+  ASYNC_BATCH_INSERT: '/data/async_batch_insert',
+  TASK_STATUS: '/tasks',
+  PENDING_TASKS: '/tasks/pending',
 } as const;
 
 console.log('API Configuration:', {

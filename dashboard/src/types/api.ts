@@ -71,6 +71,48 @@ export interface InsertDataRequest {
   video_url: string;
 }
 
+// Async task types
+export interface AsyncInsertDataRequest {
+  text?: string;
+  image_url?: string;
+  video_url?: string;
+}
+
+export interface AsyncBatchInsertRequest {
+  data_list: AsyncInsertDataRequest[];
+}
+
+export interface AsyncTaskResponse {
+  success: boolean;
+  message: string;
+  task_id: string;
+  estimated_time?: number;
+}
+
+export interface TaskStatus {
+  task_id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  progress: number;
+  message: string;
+  created_at: string;
+  started_at?: string;
+  completed_at?: string;
+  result?: any;
+}
+
+export interface TaskStatusResponse {
+  success: boolean;
+  message: string;
+  task_status: TaskStatus;
+}
+
+export interface TaskListResponse {
+  success: boolean;
+  message: string;
+  tasks: TaskStatus[];
+  total: number;
+}
+
 // Text search request
 export interface TextSearchRequest {
   query: string;

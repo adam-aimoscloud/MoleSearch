@@ -52,8 +52,8 @@ class SearchResultItem(BaseModel):
     """Search result item model"""
     id: str = Field(..., description="Result ID")
     text: str = Field("", description="Text content")
-    image_url: str = Field("", description="Image URL")
-    video_url: str = Field("", description="Video URL")
+    image_url: Optional[str] = Field("", description="Image URL")
+    video_url: Optional[str] = Field("", description="Video URL")
     image_text: str = Field("", description="Image description text")
     video_text: str = Field("", description="Video description text")
     score: float = Field(0.0, description="Similarity score")
@@ -88,8 +88,8 @@ class DataListItem(BaseModel):
     """Data list item model"""
     id: str = Field(..., description="Data ID")
     text: str = Field("", description="Text content")
-    image_url: str = Field("", description="Image URL")
-    video_url: str = Field("", description="Video URL")
+    image_url: Optional[str] = Field("", description="Image URL")
+    video_url: Optional[str] = Field("", description="Video URL")
     image_text: str = Field("", description="Image description text")
     video_text: str = Field("", description="Video description text")
 
@@ -132,4 +132,46 @@ class HealthResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Error response model"""
-    detail: str = Field(..., description="Error message") 
+    detail: str = Field(..., description="Error message")
+
+# Async task models
+class AsyncInsertDataRequest(BaseModel):
+    """Async data insertion request model"""
+    text: Optional[str] = Field(None, description="Text content")
+    image_url: Optional[str] = Field(None, description="Image URL")
+    video_url: Optional[str] = Field(None, description="Video URL")
+
+class AsyncBatchInsertRequest(BaseModel):
+    """Async batch data insertion request model"""
+    data_list: List[AsyncInsertDataRequest] = Field(..., description="Data list to insert")
+
+class AsyncTaskResponse(BaseModel):
+    """Async task response model"""
+    success: bool = Field(..., description="Task creation success status")
+    message: str = Field(..., description="Response message")
+    task_id: str = Field(..., description="Task ID for tracking")
+    estimated_time: Optional[int] = Field(None, description="Estimated processing time in seconds")
+
+class TaskStatus(BaseModel):
+    """Task status model"""
+    task_id: str = Field(..., description="Task ID")
+    status: str = Field(..., description="Task status: pending, processing, completed, failed")
+    progress: float = Field(0.0, ge=0.0, le=100.0, description="Progress percentage")
+    message: str = Field("", description="Status message")
+    created_at: str = Field(..., description="Task creation time")
+    started_at: Optional[str] = Field(None, description="Task start time")
+    completed_at: Optional[str] = Field(None, description="Task completion time")
+    result: Optional[Dict[str, Any]] = Field(None, description="Task result")
+
+class TaskStatusResponse(BaseModel):
+    """Task status response model"""
+    success: bool = Field(..., description="Status query success")
+    message: str = Field(..., description="Response message")
+    task_status: TaskStatus = Field(..., description="Task status information")
+
+class TaskListResponse(BaseModel):
+    """Task list response model"""
+    success: bool = Field(..., description="Task list query success")
+    message: str = Field(..., description="Response message")
+    tasks: List[TaskStatus] = Field(..., description="List of tasks")
+    total: int = Field(0, description="Total number of tasks") 
