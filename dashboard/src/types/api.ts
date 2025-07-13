@@ -113,6 +113,41 @@ export interface TaskListResponse {
   total: number;
 }
 
+// API Key management types
+export interface ApiKeyInfo {
+  key_id: string;
+  name: string;
+  key: string;
+  created_at: string;
+  last_used_at?: string;
+  expires_at?: string;
+  permissions: string[];
+}
+
+export interface CreateApiKeyRequest {
+  name: string;
+  expires_in_days?: number;
+  permissions?: string[];
+}
+
+export interface CreateApiKeyResponse {
+  success: boolean;
+  message: string;
+  api_key: ApiKeyInfo;
+}
+
+export interface ApiKeyListResponse {
+  success: boolean;
+  message: string;
+  api_keys: ApiKeyInfo[];
+  total: number;
+}
+
+export interface DeleteApiKeyResponse {
+  success: boolean;
+  message: string;
+}
+
 // Text search request
 export interface TextSearchRequest {
   query: string;

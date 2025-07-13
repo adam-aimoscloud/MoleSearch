@@ -9,6 +9,7 @@ import {
   UserOutlined,
   LogoutOutlined,
   ToolOutlined,
+  KeyOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
@@ -46,11 +47,15 @@ const AppLayout: React.FC<LayoutProps> = ({ children }) => {
       label: t('data'),
     },
     {
+      key: '/api-keys',
+      icon: <KeyOutlined />,
+      label: t('api_keys'),
+    },
+    {
       key: '/status',
       icon: <SettingOutlined />,
       label: t('status'),
     },
-
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {

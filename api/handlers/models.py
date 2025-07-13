@@ -174,4 +174,39 @@ class TaskListResponse(BaseModel):
     success: bool = Field(..., description="Task list query success")
     message: str = Field(..., description="Response message")
     tasks: List[TaskStatus] = Field(..., description="List of tasks")
-    total: int = Field(0, description="Total number of tasks") 
+    total: int = Field(0, description="Total number of tasks")
+
+# API Key management models
+class ApiKeyInfo(BaseModel):
+    """API Key information model"""
+    key_id: str = Field(..., description="API Key ID")
+    name: str = Field(..., description="API Key name")
+    key: str = Field(..., description="API Key value")
+    created_at: str = Field(..., description="Creation time")
+    last_used_at: Optional[str] = Field(None, description="Last used time")
+    expires_at: Optional[str] = Field(None, description="Expiration time")
+    permissions: List[str] = Field([], description="API Key permissions")
+
+class CreateApiKeyRequest(BaseModel):
+    """Create API Key request model"""
+    name: str = Field(..., description="API Key name")
+    expires_in_days: Optional[int] = Field(None, description="Expiration in days (optional for permanent)")
+    permissions: List[str] = Field([], description="API Key permissions")
+
+class CreateApiKeyResponse(BaseModel):
+    """Create API Key response model"""
+    success: bool = Field(..., description="Creation success status")
+    message: str = Field(..., description="Response message")
+    api_key: ApiKeyInfo = Field(..., description="Created API Key information")
+
+class ApiKeyListResponse(BaseModel):
+    """API Key list response model"""
+    success: bool = Field(..., description="Query success status")
+    message: str = Field(..., description="Response message")
+    api_keys: List[ApiKeyInfo] = Field(..., description="List of API Keys")
+    total: int = Field(0, description="Total number of API Keys")
+
+class DeleteApiKeyResponse(BaseModel):
+    """Delete API Key response model"""
+    success: bool = Field(..., description="Deletion success status")
+    message: str = Field(..., description="Response message") 

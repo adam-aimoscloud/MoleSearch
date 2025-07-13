@@ -76,6 +76,21 @@ class AuthService:
         if token_data:
             return token_data['user_info']
         
+        # If not a user token, check if it's an API key
+        try:
+            from .api_key_handler import api_key_manager
+            api_key_data = api_key_manager.validate_api_key(token)
+            if api_key_data:
+                # Return API key info as user info for compatibility
+                return {
+                    'username': f"api_key_{api_key_data.get('name', 'unknown')}",
+                    'role': 'api_key',
+                    'api_key_id': api_key_data.get('key_id'),
+                    'api_key_name': api_key_data.get('name')
+                }
+        except Exception as e:
+            logger.warning(f"Error validating API key: {e}")
+        
         return None
     
     def revoke_token(self, token: str) -> bool:

@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 from handlers.search_handler import router as search_router
 from handlers.file_handler import router as file_router
 from handlers.auth_handler import router as auth_router
+from handlers.api_key_handler import router as api_key_router
 from utils.logger import get_logger
 from utils.config import init_config
 from utils.redis_client import init_redis
@@ -67,6 +68,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(search_router, prefix="/api/v1", tags=["search"])
 app.include_router(file_router, prefix="/api/v1", tags=["files"])
+app.include_router(api_key_router, prefix="/api/v1", tags=["api-keys"])
 
 # Mount static files for uploaded files
 try:

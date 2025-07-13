@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Search from './pages/Search';
 import DataManagement from './pages/DataManagement';
+import ApiKeyManagement from './pages/ApiKeyManagement';
 import SystemStatus from './pages/SystemStatus';
 import { AuthProvider } from './contexts/AuthContext';
 import './App.css';
@@ -37,6 +38,13 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Layout>
                   <DataManagement />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/api-keys" element={
+              <ProtectedRoute>
+                <Layout>
+                  <ApiKeyManagement />
                 </Layout>
               </ProtectedRoute>
             } />

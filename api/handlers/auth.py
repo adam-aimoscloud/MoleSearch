@@ -45,9 +45,20 @@ class TokenAuth:
         if token.startswith(prefix):
             token = token[len(prefix):]
         
-        # Check if token exists in Redis
+        # First check if it's a user token
         token_data = self.redis_client.get_token_data(token)
-        return token_data is not None
+        if token_data is not None:
+            return True
+        
+        # If not a user token, check if it's an API key
+        try:
+            # Import API key manager to validate API keys
+            from .api_key_handler import api_key_manager
+            api_key_data = api_key_manager.validate_api_key(token)
+            return api_key_data is not None
+        except Exception as e:
+            logger.warning(f"Error validating API key: {e}")
+            return False
     
     async def authenticate(self, request: Request) -> Optional[str]:
         """Authenticate request"""

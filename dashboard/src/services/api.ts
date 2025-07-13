@@ -19,7 +19,12 @@ import {
   AsyncBatchInsertRequest,
   AsyncTaskResponse,
   TaskStatusResponse,
-  TaskListResponse
+  TaskListResponse,
+  ApiKeyInfo,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
+  ApiKeyListResponse,
+  DeleteApiKeyResponse
 } from '../types/api';
 
 // Create axios instance with configuration
@@ -160,6 +165,22 @@ export class ApiService {
   // Load all data
   static async listData(request: DataListRequest): Promise<DataListResponse> {
     const response = await api.post(API_ENDPOINTS.LIST_DATA, request);
+    return response.data;
+  }
+
+  // API Key Management
+  static async createApiKey(request: CreateApiKeyRequest): Promise<CreateApiKeyResponse> {
+    const response = await api.post(API_ENDPOINTS.CREATE_API_KEY, request);
+    return response.data;
+  }
+
+  static async listApiKeys(): Promise<ApiKeyListResponse> {
+    const response = await api.get(API_ENDPOINTS.LIST_API_KEYS);
+    return response.data;
+  }
+
+  static async deleteApiKey(keyId: string): Promise<DeleteApiKeyResponse> {
+    const response = await api.delete(`${API_ENDPOINTS.API_KEYS}/${keyId}`);
     return response.data;
   }
 }

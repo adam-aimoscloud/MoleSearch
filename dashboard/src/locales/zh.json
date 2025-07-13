@@ -102,5 +102,27 @@
   "failed": "失败",
   "active_tasks": "活动任务",
   "completed_tasks": "已完成任务",
-  "pending_tasks": "等待任务"
+  "pending_tasks": "等待任务",
+  
+  "api_keys": "API 密钥",
+  "api_key_management": "API 密钥管理",
+  "create_api_key": "创建 API 密钥",
+  "api_key_name": "API 密钥名称",
+  "api_key_name_required": "API 密钥名称是必需的",
+  "enter_api_key_name": "输入 API 密钥名称",
+  "expiration_days": "过期天数",
+  "leave_empty_for_permanent": "留空表示永久有效",
+  "delete_api_key_confirm": "确定要删除这个 API 密钥吗？",
+  "api_key_info": "API 密钥信息",
+  "api_key_description": "API 密钥允许您以编程方式访问 API。请妥善保管您的密钥，切勿公开分享。",
+  "usage_examples": "使用示例",
+  "curl_example": "cURL 示例",
+  "python_example": "Python 示例",
+  "javascript_example": "JavaScript 示例",
+  "never": "永不",
+  "yes": "是",
+  "no": "否",
+  "create": "创建",
+  "cancel": "取消",
+  "delete": "删除"
 } 
