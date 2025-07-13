@@ -43,4 +43,6 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Start the application with gunicorn
-CMD ["bash", "start.sh"]
+# Start API or worker based on the ROLE environment variable
+# If ROLE=worker, start worker; otherwise, start API server
+CMD ["bash", "-c", "if [ \"$ROLE\" = \"worker\" ]; then bash start.sh worker; else bash start.sh; fi"]
